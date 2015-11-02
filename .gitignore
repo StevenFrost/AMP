@@ -25,3 +25,12 @@ proguard/
 
 # Log Files
 *.log
+
+# Android Studio
+*.iml
+.idea
+.DS_Store
+/captures
+
+# NDK
+obj/
