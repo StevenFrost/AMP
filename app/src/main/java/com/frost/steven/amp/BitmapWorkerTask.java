@@ -3,8 +3,10 @@ package com.frost.steven.amp;
 import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
+import android.util.LruCache;
 import android.widget.ImageView;
 
 import java.io.IOException;
@@ -15,11 +17,13 @@ class BitmapWorkerTask extends AsyncTask<AudioTrack, Void, Bitmap>
     private final ContentResolver          m_resolver;
     private final WeakReference<ImageView> m_weakRef;
     private AudioTrack                     m_data;
+    private LruCache<Uri, Bitmap>          m_cache;
 
-    public BitmapWorkerTask(ContentResolver resolver, ImageView imageView)
+    public BitmapWorkerTask(ContentResolver resolver, ImageView imageView, LruCache<Uri, Bitmap> cache)
     {
         m_resolver = resolver;
         m_weakRef = new WeakReference<>(imageView);
+        m_cache = cache;
     }
 
     /**
@@ -65,6 +69,11 @@ class BitmapWorkerTask extends AsyncTask<AudioTrack, Void, Bitmap>
         {
             bitmap = MediaStore.Images.Media.getBitmap(m_resolver, m_data.CoverArt);
             bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
+
+            if (m_cache.get(m_data.CoverArt) == null)
+            {
+                m_cache.put(m_data.CoverArt, bitmap);
+            }
         }
         catch (IOException | NullPointerException e)
         {

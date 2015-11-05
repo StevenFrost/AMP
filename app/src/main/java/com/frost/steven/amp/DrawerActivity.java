@@ -1,24 +1,23 @@
 package com.frost.steven.amp;
 
-import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.LruCache;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class DrawerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
-    private Playlist m_masterPlaylist;
+    private LruCache<Uri, Bitmap> m_cache;
+    private Playlist              m_masterPlaylist;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -36,23 +35,28 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        // LRU Cache
+        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+        final int cacheSize = maxMemory / 4;
+        m_cache = new LruCache<Uri, Bitmap>(cacheSize)
+        {
+            @Override
+            protected int sizeOf(Uri key, Bitmap bitmap)
+            {
+                return bitmap.getByteCount() / 1024;
+            }
+        };
+
+        // Master playlist
         m_masterPlaylist = new MasterPlaylist(getContentResolver());
 
-//        AudioTrack tracks[] = new AudioTrack[]
-//        {
-//            new AudioTrack("Castellorizon", "David Gilmour", "On An Island"),
-//            new AudioTrack("On An Island", "David Gilmour", "On An Island"),
-//            new AudioTrack("The Blue", "David Gilmour", "On An Island"),
-//            new AudioTrack("Take A Breath", "David Gilmour", "On An Island"),
-//            new AudioTrack("Red Sky At Night", "David Gilmour", "On An Island"),
-//            new AudioTrack("This Heaven", "David Gilmour", "On An Island"),
-//            new AudioTrack("Then I Close My Eyes", "David Gilmour", "On An Island"),
-//            new AudioTrack("Smile", "David Gilmour", "On An Island"),
-//            new AudioTrack("A Pocketful Of Stones", "David Gilmour", "On An Island"),
-//            new AudioTrack("Where We Start", "David Gilmour", "On An Island")
-//        };
-
-        AudioTrackAdapter adapter = new AudioTrackAdapter(this, R.layout.tablerow_song, m_masterPlaylist.Tracks.toArray(new AudioTrack[m_masterPlaylist.Tracks.size()]));
+        // List of songs
+        AudioTrackAdapter adapter = new AudioTrackAdapter(
+            this,
+            R.layout.tablerow_song,
+            m_masterPlaylist.Tracks.toArray(new AudioTrack[m_masterPlaylist.Tracks.size()]),
+            m_cache
+        );
         ListView lv = (ListView)findViewById(R.id.listView_songs);
         lv.setAdapter(adapter);
     }
