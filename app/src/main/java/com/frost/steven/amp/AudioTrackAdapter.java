@@ -2,9 +2,6 @@ package com.frost.steven.amp;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,21 +9,18 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 public class AudioTrackAdapter extends ArrayAdapter<AudioTrack>
 {
-    Context    context;
-    int        layoutResourceId;
-    AudioTrack data[] = null;
+    private Context    m_context;
+    private int        m_layoutResourceId;
+    private AudioTrack m_data[] = null;
 
     public AudioTrackAdapter(Context context, int layoutResourceId, AudioTrack[] data)
     {
         super(context, layoutResourceId, data);
-        this.context = context;
-        this.layoutResourceId = layoutResourceId;
-        this.data = data;
+        m_context = context;
+        m_layoutResourceId = layoutResourceId;
+        m_data = data;
     }
 
     @Override
@@ -37,8 +31,8 @@ public class AudioTrackAdapter extends ArrayAdapter<AudioTrack>
 
         if (row == null)
         {
-            LayoutInflater inflater = ((Activity)context).getLayoutInflater();
-            row = inflater.inflate(layoutResourceId, parent, false);
+            LayoutInflater inflater = ((Activity)m_context).getLayoutInflater();
+            row = inflater.inflate(m_layoutResourceId, parent, false);
 
             viewGroup = new AudioTrackViewGroup();
             viewGroup.AlbumArt = (ImageView)row.findViewById(R.id.tablerow_song_albumart);
@@ -53,26 +47,15 @@ public class AudioTrackAdapter extends ArrayAdapter<AudioTrack>
             viewGroup = ((AudioTrackViewGroup)row.getTag());
         }
 
-        // Album art
-        Bitmap bitmap = null;
-        try
+        if (BitmapWorkerTask.cancelOutstandingWork(m_data[position], viewGroup.AlbumArt))
         {
-            bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), data[position].CoverArt);
-            bitmap = Bitmap.createScaledBitmap(bitmap, 128, 128, true);
-
-        }
-        catch (FileNotFoundException exception)
-        {
-            exception.printStackTrace();
-            bitmap = BitmapFactory.decodeResource(context.getResources(), android.R.drawable.ic_menu_help);
-        }
-        catch (IOException | NullPointerException e)
-        {
-            e.printStackTrace();
+            final BitmapWorkerTask task = new BitmapWorkerTask(m_context.getContentResolver(), viewGroup.AlbumArt);
+            final AsyncDrawable asyncDrawable = new AsyncDrawable(row.getResources(), null, task);
+            viewGroup.AlbumArt.setImageDrawable(asyncDrawable);
+            task.execute(m_data[position]);
         }
 
-        AudioTrack track = data[position];
-        viewGroup.AlbumArt.setImageBitmap(bitmap);
+        AudioTrack track = m_data[position];
         viewGroup.Title.setText(track.Title);
         viewGroup.Artist.setText(track.Artist);
         viewGroup.Album.setText(track.Album);
