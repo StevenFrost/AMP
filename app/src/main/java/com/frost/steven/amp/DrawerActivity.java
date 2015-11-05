@@ -1,5 +1,6 @@
 package com.frost.steven.amp;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,7 +13,12 @@ import android.support.v7.widget.Toolbar;
 import android.util.LruCache;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class DrawerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
@@ -59,6 +65,16 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
         );
         ListView lv = (ListView)findViewById(R.id.listView_songs);
         lv.setAdapter(adapter);
+
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View container, int position, long id)
+            {
+                Intent intent = new Intent(DrawerActivity.this, PlayerActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
