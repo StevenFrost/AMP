@@ -1,9 +1,13 @@
 package com.frost.steven.amp;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -15,15 +19,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
+
+import java.io.Serializable;
 
 public class DrawerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     private LruCache<Uri, Bitmap> m_cache;
     private Playlist              m_masterPlaylist;
+
+    MediaService m_service;
+    boolean      m_bound = false;
+
+    private static final String BUNDLE_CACHE = "com.frost.steven.amp.CACHE";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -56,6 +64,11 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
         // Master playlist
         m_masterPlaylist = new MasterPlaylist(getContentResolver());
 
+        // Bind the media service
+        Intent playIntent = new Intent(this, MediaService.class);
+        bindService(playIntent, m_connection, Context.BIND_AUTO_CREATE);
+        startService(playIntent);
+
         // List of songs
         AudioTrackAdapter adapter = new AudioTrackAdapter(
             this,
@@ -71,6 +84,9 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
             @Override
             public void onItemClick(AdapterView<?> parent, View container, int position, long id)
             {
+                m_masterPlaylist.Position = position;
+                m_service.play();
+
                 Intent intent = new Intent(DrawerActivity.this, PlayerActivity.class);
                 startActivity(intent);
             }
@@ -152,4 +168,23 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    private ServiceConnection m_connection = new ServiceConnection()
+    {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service)
+        {
+            MediaService.MediaBinder binder = (MediaService.MediaBinder)service;
+
+            m_service = binder.getService();
+            m_service.setPlaylist(m_masterPlaylist);
+            m_bound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name)
+        {
+            m_bound = false;
+        }
+    };
 }

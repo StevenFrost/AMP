@@ -14,7 +14,7 @@ public class AudioTrack
     public String Album;    /** Album name                     */
     public String Data;     /** Track location in storage      */
     public Uri    CoverArt; /** Cover art graphic              */
-    public long   Duration; /** Track duration in milliseconds */
+    public int    Duration; /** Track duration in milliseconds */
 
     public AudioTrack()
     {
@@ -28,7 +28,7 @@ public class AudioTrack
         Album = album;
     }
 
-    public AudioTrack(String title, String artist, String album, String data, Uri coverArt, long duration)
+    public AudioTrack(String title, String artist, String album, String data, Uri coverArt, int duration)
     {
         Title = title;
         Artist = artist;

@@ -43,7 +43,7 @@ public class MasterPlaylist extends Playlist
                 String artist = cursor.getString(2);
                 String album  = cursor.getString(3);
                 String data   = cursor.getString(4);
-                long duration = cursor.getLong(5);
+                int duration  = cursor.getInt(5);
 
                 Uri artworkUri = Uri.parse("content://media/external/audio/albumart");
                 Uri albumArtworkUri = ContentUris.withAppendedId(artworkUri, albumId);

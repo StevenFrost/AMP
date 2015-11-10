@@ -15,6 +15,15 @@
     <string name="nav_sources">Manage Sources</string>
     <string name="nav_about">About</string>
 
+    <!-- Player -->
+    <string name="null_timecode">00:00</string>
+
+    <!-- Accessibility -->
+    <string name="cd_prev">Previous</string>
+    <string name="cd_play">Play</string>
+    <string name="cd_pause">Pause</string>
+    <string name="cd_next">Next</string>
+
     <!-- Activity action bar text -->
     <string name="activity_songs">Songs</string>
     <string name="title_activity_drawer">DrawerActivity</string>
