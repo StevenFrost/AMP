@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 public class MasterPlaylist extends Playlist
@@ -48,13 +49,23 @@ public class MasterPlaylist extends Playlist
                 Uri artworkUri = Uri.parse("content://media/external/audio/albumart");
                 Uri albumArtworkUri = ContentUris.withAppendedId(artworkUri, albumId);
 
+                try
+                {
+                    // Attempt to read the album art
+                    resolver.openFileDescriptor(albumArtworkUri, "r");
+                }
+                catch (FileNotFoundException ex)
+                {
+                    albumArtworkUri = null;
+                }
+
                 Tracks.add(new AudioTrack(title, artist, album, data, albumArtworkUri, duration));
             }
             cursor.close();
         }
         catch (NullPointerException ex)
         {
-            System.err.println("Some bad shit happened");
+            ex.printStackTrace();
         }
     }
 }

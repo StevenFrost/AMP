@@ -41,6 +41,7 @@ public class AudioTrackAdapter extends ArrayAdapter<AudioTrack>
             row = inflater.inflate(m_layoutResourceId, parent, false);
 
             viewGroup = new AudioTrackViewGroup();
+            viewGroup.AlbumArtPlaceholder = (ImageView)row.findViewById(R.id.tablerow_song_albumart_placeholder);
             viewGroup.AlbumArt = (ImageView)row.findViewById(R.id.tablerow_song_albumart);
             viewGroup.Title = (TextView)row.findViewById(R.id.tablerow_song_title);
             viewGroup.Artist = (TextView)row.findViewById(R.id.tablerow_song_artist);
@@ -53,7 +54,7 @@ public class AudioTrackAdapter extends ArrayAdapter<AudioTrack>
             viewGroup = ((AudioTrackViewGroup)row.getTag());
         }
 
-        if (BitmapWorkerTask.cancelOutstandingWork(track, viewGroup.AlbumArt))
+        if (track.CoverArt != null && BitmapWorkerTask.cancelOutstandingWork(track, viewGroup.AlbumArt))
         {
             Bitmap albumArtBitmap = m_cache.get(track.CoverArt);
             if (albumArtBitmap != null)
@@ -67,6 +68,14 @@ public class AudioTrackAdapter extends ArrayAdapter<AudioTrack>
                 viewGroup.AlbumArt.setImageDrawable(asyncDrawable);
                 worker.execute(track);
             }
+            viewGroup.AlbumArtPlaceholder.setVisibility(View.GONE);
+            viewGroup.AlbumArt.setVisibility(View.VISIBLE);
+        }
+        else if (track.CoverArt == null)
+        {
+            viewGroup.AlbumArt.setImageBitmap(null);
+            viewGroup.AlbumArtPlaceholder.setVisibility(View.VISIBLE);
+            viewGroup.AlbumArt.setVisibility(View.GONE);
         }
 
         viewGroup.Title.setText(track.Title);
@@ -78,6 +87,7 @@ public class AudioTrackAdapter extends ArrayAdapter<AudioTrack>
 
     static class AudioTrackViewGroup
     {
+        ImageView AlbumArtPlaceholder;
         ImageView AlbumArt;
         TextView  Title;
         TextView  Artist;

@@ -7,4 +7,7 @@
     <color name="colourFrosty">#AAFFFFFF</color>
     <color name="colourWhite">#FFFFFF</color>
     <color name="colourBlack">#000000</color>
+
+    <color name="colourGrey1">#999999</color>
+    <color name="colourGrey2">#CCCCCC</color>
 </resources>

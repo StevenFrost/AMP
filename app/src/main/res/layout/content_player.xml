@@ -6,19 +6,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
-              <!--
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              app:layout_behavior="@string/appbar_scrolling_view_behavior"
-              -->
 
     <ImageView android:id="@+id/player_large_album_art"
                android:layout_width="fill_parent"
                android:layout_height="fill_parent"
-               android:scaleType="centerCrop"/>
+               android:scaleType="centerCrop"
+               android:contentDescription="@string/cd_album_art"/>
 
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="match_parent"
                   android:orientation="vertical">
+
         <RelativeLayout android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@color/colourFrosty">
@@ -83,15 +81,23 @@
                              android:layout_gravity="center"
                              android:layout_height="30dp"
                              android:layout_marginEnd="30dp"
-                             android:background="@drawable/player_prev"
+                             android:padding="0dp"
+                             android:background="@null"
+                             android:scaleType="fitCenter"
+                             android:adjustViewBounds="true"
+                             android:src="@drawable/player_prev_button"
                              android:contentDescription="@string/cd_prev"
                              android:onClick="onPrevButtonClick"/>
 
                 <ImageButton android:id="@+id/player_play_button"
-                             android:layout_width="50dp"
+                             android:layout_width="60dp"
                              android:layout_gravity="center"
-                             android:layout_height="50dp"
-                             android:background="@drawable/player_pause"
+                             android:layout_height="60dp"
+                             android:padding="4dp"
+                             android:background="@null"
+                             android:scaleType="fitCenter"
+                             android:adjustViewBounds="true"
+                             android:src="@drawable/player_pause"
                              android:contentDescription="@string/cd_play"
                              android:onClick="onPlayButtonClick"/>
 
@@ -99,7 +105,11 @@
                              android:layout_gravity="center"
                              android:layout_height="30dp"
                              android:layout_marginStart="30dp"
-                             android:background="@drawable/player_next"
+                             android:padding="0dp"
+                             android:background="@null"
+                             android:scaleType="fitCenter"
+                             android:adjustViewBounds="true"
+                             android:src="@drawable/player_next_button"
                              android:contentDescription="@string/cd_next"
                              android:onClick="onNextButtonClick"/>
 

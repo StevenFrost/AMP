@@ -5,12 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.provider.MediaStore;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
@@ -18,7 +16,6 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class PlayerActivity extends AppCompatActivity
@@ -60,6 +57,8 @@ public class PlayerActivity extends AppCompatActivity
         SeekBar seekBar = (SeekBar) findViewById(R.id.player_seek_bar);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
         {
+            private MediaService.PlayState m_stateOnStartTouch = MediaService.PlayState.Stopped;
+
             @Override
             public void onProgressChanged(SeekBar seekBar, int timecode, boolean fromUser)
             {
@@ -72,6 +71,7 @@ public class PlayerActivity extends AppCompatActivity
             @Override
             public void onStartTrackingTouch(SeekBar seekBar)
             {
+                m_stateOnStartTouch = m_service.getPlayerState();
                 m_service.pause();
             }
 
@@ -79,7 +79,10 @@ public class PlayerActivity extends AppCompatActivity
             public void onStopTrackingTouch(SeekBar seekBar)
             {
                 m_service.setPlayheadTimecode(seekBar.getProgress());
-                m_service.play();
+                if (m_stateOnStartTouch == MediaService.PlayState.Playing)
+                {
+                    m_service.play();
+                }
             }
         });
     }
@@ -94,6 +97,7 @@ public class PlayerActivity extends AppCompatActivity
     protected void onStop()
     {
         super.onStop();
+        unbindService(m_connection);
     }
 
     /**
@@ -116,7 +120,7 @@ public class PlayerActivity extends AppCompatActivity
             albumArtView.setImageBitmap(albumArtSmall);
             albumArtLargeView.setImageBitmap(albumArtLarge);
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
             // TODO: Revert to a more suitable album art bitmap here
             ex.printStackTrace();
@@ -157,22 +161,20 @@ public class PlayerActivity extends AppCompatActivity
 
     public void onPlayButtonClick(View view)
     {
-        Drawable drawable = null;
+        ImageButton ib = ((ImageButton)findViewById(R.id.player_play_button));
 
         switch(m_service.getPlayerState())
         {
         case Playing:
             m_service.pause();
-            drawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.player_play);
+            ib.setImageResource(R.drawable.player_play);
             break;
         case Paused:
         case Stopped:
             m_service.play();
-            drawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.player_pause);
+            ib.setImageResource(R.drawable.player_pause);
             break;
         }
-
-        findViewById(R.id.player_play_button).setBackground(drawable);
     }
 
     public void onNextButtonClick(View view)

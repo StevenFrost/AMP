@@ -21,8 +21,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import java.io.Serializable;
-
 public class DrawerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     private LruCache<Uri, Bitmap> m_cache;
@@ -30,8 +28,6 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
 
     MediaService m_service;
     boolean      m_bound = false;
-
-    private static final String BUNDLE_CACHE = "com.frost.steven.amp.CACHE";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -138,31 +134,6 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
     {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
-//        if (id == R.id.nav_camara)
-//        {
-//            // Handle the camera action
-//        }
-//        else if (id == R.id.nav_gallery)
-//        {
-//
-//        }
-//        else if (id == R.id.nav_slideshow)
-//        {
-//
-//        }
-//        else if (id == R.id.nav_manage)
-//        {
-//
-//        }
-//        else if (id == R.id.nav_share)
-//        {
-//
-//        }
-//        else if (id == R.id.nav_send)
-//        {
-//
-//        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

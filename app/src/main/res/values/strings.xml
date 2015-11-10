@@ -23,6 +23,12 @@
     <string name="cd_play">Play</string>
     <string name="cd_pause">Pause</string>
     <string name="cd_next">Next</string>
+    <string name="cd_album_art">Album Art</string>
+
+    <!-- Placeholders -->
+    <string name="placeholder_title">Title</string>
+    <string name="placeholder_artist">Artist</string>
+    <string name="placeholder_album">Album</string>
 
     <!-- Activity action bar text -->
     <string name="activity_songs">Songs</string>

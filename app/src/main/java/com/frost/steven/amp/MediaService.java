@@ -174,9 +174,15 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
 
     public void pause()
     {
-        // TODO: Handle this correctly, might fail after a reset?
-        setPlayerState(PlayState.Paused);
-        m_player.pause();
+        if (m_playerState == PlayState.Playing)
+        {
+            setPlayerState(PlayState.Paused);
+            m_player.pause();
+        }
+        else
+        {
+            System.out.println("Media service paused while already in a paused or stopped state.");
+        }
     }
 
     /**
@@ -221,7 +227,9 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         {
             m_onTrackChanged.onTrackChanged(m_playlist.Tracks.get(m_playlist.Position));
         }
+
         play();
+        setPlayerState(PlayState.Playing);
     }
 
     public void previousTrack()
@@ -235,7 +243,9 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         {
             m_onTrackChanged.onTrackChanged(m_playlist.Tracks.get(m_playlist.Position));
         }
+
         play();
+        setPlayerState(PlayState.Playing);
     }
 
     public PlayState getPlayerState()
