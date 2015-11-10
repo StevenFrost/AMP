@@ -34,88 +34,124 @@
                android:layout_weight="1"
                android:layout_gravity="top"/>
 
-        <LinearLayout android:layout_width="fill_parent"
-                      android:layout_height="wrap_content"
-                      android:orientation="vertical"
-                      android:background="@color/colourFrosty">
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout android:layout_width="fill_parent"
+                          android:layout_height="wrap_content"
+                          android:layout_marginTop="16dp"
+                          android:background="@color/colourFrosty">
+
+                <LinearLayout android:layout_width="fill_parent"
+                              android:layout_height="wrap_content"
+                              android:orientation="horizontal">
+
+                    <TextView android:id="@+id/player_track_position"
+                              android:layout_height="wrap_content"
+                              android:layout_width="wrap_content"
+                              android:layout_marginStart="5dp"
+                              android:layout_marginTop="5dp"
+                              android:text="@string/null_timecode">
+
+                    </TextView>
+
+                    <Space android:layout_height="wrap_content"
+                           android:layout_width="0dp"
+                           android:layout_weight="1" />
+
+                    <TextView android:id="@+id/player_track_duration"
+                              android:layout_height="wrap_content"
+                              android:layout_width="wrap_content"
+                              android:layout_marginEnd="5dp"
+                              android:layout_marginTop="5dp"
+                              android:text="@string/null_timecode">
+
+                    </TextView>
+
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="wrap_content"
+                              android:layout_height="wrap_content"
+                              android:layout_centerHorizontal="true"
+                              android:layout_marginTop="10dp"
+                              android:layout_marginBottom="10dp"
+                              android:orientation="horizontal">
+
+                    <ImageButton android:layout_width="30dp"
+                                 android:layout_gravity="center"
+                                 android:layout_height="35dp"
+                                 android:layout_marginEnd="30dp"
+                                 android:layout_marginTop="8dp"
+                                 android:padding="0dp"
+                                 android:background="@null"
+                                 android:scaleType="fitCenter"
+                                 android:adjustViewBounds="true"
+                                 android:src="@drawable/player_repeat"
+                                 android:contentDescription="@string/cd_repeat"
+                                 android:onClick="onRepeatButtonClick"/>
+
+                    <ImageButton android:layout_width="30dp"
+                                 android:layout_height="30dp"
+                                 android:layout_gravity="center"
+                                 android:layout_marginEnd="30dp"
+                                 android:padding="5dp"
+                                 android:background="@null"
+                                 android:scaleType="fitCenter"
+                                 android:adjustViewBounds="true"
+                                 android:src="@drawable/player_prev_button"
+                                 android:contentDescription="@string/cd_prev"
+                                 android:onClick="onPrevButtonClick"/>
+
+                    <ImageButton android:id="@+id/player_play_button"
+                                 android:layout_width="60dp"
+                                 android:layout_gravity="center"
+                                 android:layout_height="60dp"
+                                 android:padding="6dp"
+                                 android:background="@null"
+                                 android:scaleType="fitCenter"
+                                 android:adjustViewBounds="true"
+                                 android:src="@drawable/player_pause"
+                                 android:contentDescription="@string/cd_play"
+                                 android:onClick="onPlayButtonClick"/>
+
+                    <ImageButton android:layout_width="30dp"
+                                 android:layout_gravity="center"
+                                 android:layout_height="30dp"
+                                 android:layout_marginStart="30dp"
+                                 android:padding="5dp"
+                                 android:background="@null"
+                                 android:scaleType="fitCenter"
+                                 android:adjustViewBounds="true"
+                                 android:src="@drawable/player_next_button"
+                                 android:contentDescription="@string/cd_next"
+                                 android:onClick="onNextButtonClick"/>
+
+                    <ImageButton android:layout_width="30dp"
+                                 android:layout_gravity="center"
+                                 android:layout_height="30dp"
+                                 android:layout_marginStart="30dp"
+                                 android:layout_marginTop="2dp"
+                                 android:padding="3dp"
+                                 android:background="@null"
+                                 android:scaleType="fitCenter"
+                                 android:adjustViewBounds="true"
+                                 android:src="@drawable/player_shuffle"
+                                 android:contentDescription="@string/cd_shuffle"
+                                 android:onClick="onShuffleButtonClick"/>
+
+                </LinearLayout>
+
+            </RelativeLayout>
 
             <SeekBar android:id="@+id/player_seek_bar"
                      android:layout_width="fill_parent"
                      android:layout_height="wrap_content"
-                     android:layout_marginStart="-7pt"
-                     android:layout_marginEnd="-7pt"/>
+                     android:layout_marginStart="-8pt"
+                     android:layout_marginEnd="-8pt"
+                     android:progress="0"/>
 
-            <LinearLayout android:layout_width="fill_parent"
-                          android:layout_height="wrap_content"
-                          android:orientation="horizontal">
-
-                <TextView android:id="@+id/player_track_position"
-                          android:layout_height="wrap_content"
-                          android:layout_width="wrap_content"
-                          android:layout_marginStart="16dp"
-                          android:text="@string/null_timecode">
-
-                </TextView>
-
-                <Space android:layout_height="wrap_content"
-                       android:layout_width="0dp"
-                       android:layout_weight="1" />
-
-                <TextView android:id="@+id/player_track_duration"
-                          android:layout_height="wrap_content"
-                          android:layout_width="wrap_content"
-                          android:layout_marginEnd="16dp"
-                          android:text="@string/null_timecode">
-
-                </TextView>
-
-            </LinearLayout>
-
-            <LinearLayout android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:layout_gravity="center_horizontal"
-                          android:layout_marginBottom="16dp"
-                          android:orientation="horizontal">
-
-                <ImageButton android:layout_width="30dp"
-                             android:layout_gravity="center"
-                             android:layout_height="30dp"
-                             android:layout_marginEnd="30dp"
-                             android:padding="0dp"
-                             android:background="@null"
-                             android:scaleType="fitCenter"
-                             android:adjustViewBounds="true"
-                             android:src="@drawable/player_prev_button"
-                             android:contentDescription="@string/cd_prev"
-                             android:onClick="onPrevButtonClick"/>
-
-                <ImageButton android:id="@+id/player_play_button"
-                             android:layout_width="60dp"
-                             android:layout_gravity="center"
-                             android:layout_height="60dp"
-                             android:padding="4dp"
-                             android:background="@null"
-                             android:scaleType="fitCenter"
-                             android:adjustViewBounds="true"
-                             android:src="@drawable/player_pause"
-                             android:contentDescription="@string/cd_play"
-                             android:onClick="onPlayButtonClick"/>
-
-                <ImageButton android:layout_width="30dp"
-                             android:layout_gravity="center"
-                             android:layout_height="30dp"
-                             android:layout_marginStart="30dp"
-                             android:padding="0dp"
-                             android:background="@null"
-                             android:scaleType="fitCenter"
-                             android:adjustViewBounds="true"
-                             android:src="@drawable/player_next_button"
-                             android:contentDescription="@string/cd_next"
-                             android:onClick="onNextButtonClick"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
+        </RelativeLayout>
 
     </LinearLayout>
 

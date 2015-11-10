@@ -182,6 +182,35 @@ public class PlayerActivity extends AppCompatActivity
         m_service.nextTrack();
     }
 
+    private boolean m_shuffle = false;
+    private boolean m_repeat = false;
+
+    public void onShuffleButtonClick(View view)
+    {
+        if (!m_shuffle)
+        {
+            ((ImageButton) view).setImageResource(R.drawable.player_shuffle_selected);
+        }
+        else
+        {
+            ((ImageButton) view).setImageResource(R.drawable.player_shuffle);
+        }
+        m_shuffle = !m_shuffle;
+    }
+
+    public void onRepeatButtonClick(View view)
+    {
+        if (!m_repeat)
+        {
+            ((ImageButton) view).setImageResource(R.drawable.player_repeat_selected);
+        }
+        else
+        {
+            ((ImageButton) view).setImageResource(R.drawable.player_repeat);
+        }
+        m_repeat = !m_repeat;
+    }
+
     private ServiceConnection m_connection = new ServiceConnection()
     {
         @Override
