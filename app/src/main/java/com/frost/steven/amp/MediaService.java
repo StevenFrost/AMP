@@ -20,12 +20,13 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
     private OnPlayStateChangedListener m_onPlayStateChanged = null;
 
     // State
-    private PlayState m_playerState = PlayState.Stopped;
+    private PlayerState m_playerState = PlayerState.Stopped;
+
+    private Playlist m_playlist = null;
 
     // Assorted private members
     private final IBinder m_binder = new MediaBinder();
     private final Random  m_random = new Random();
-    private Playlist      m_playlist = null;
     private MediaPlayer   m_player = null;
 
     /**
@@ -78,7 +79,7 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         m_player.stop();
         m_player.release();
 
-        setPlayerState(PlayState.Stopped);
+        setPlayerState(PlayerState.Stopped);
 
         return false;
     }
@@ -87,13 +88,13 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
     public void onPrepared(MediaPlayer player)
     {
         player.start();
-        setPlayerState(PlayState.Playing);
+        setPlayerState(PlayerState.Playing);
     }
 
     @Override
     public void onCompletion(MediaPlayer player)
     {
-        setPlayerState(PlayState.Stopped);
+        setPlayerState(PlayerState.Stopped);
 
         if (m_playlist.Shuffle)
         {
@@ -150,10 +151,10 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
     public void play()
     {
         // TODO: Handle states correctly here, it's not great currently
-        if (m_playerState == PlayState.Paused)
+        if (m_playerState == PlayerState.Paused)
         {
             m_player.start();
-            setPlayerState(PlayState.Playing);
+            setPlayerState(PlayerState.Playing);
             return;
         }
 
@@ -174,15 +175,21 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
 
     public void pause()
     {
-        if (m_playerState == PlayState.Playing)
+        if (m_playerState == PlayerState.Playing)
         {
-            setPlayerState(PlayState.Paused);
             m_player.pause();
+            setPlayerState(PlayerState.Paused);
         }
         else
         {
             System.out.println("Media service paused while already in a paused or stopped state.");
         }
+    }
+
+    public void stop()
+    {
+        m_player.stop();
+        setPlayerState(PlayerState.Stopped);
     }
 
     /**
@@ -219,7 +226,7 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
     public void nextTrack()
     {
         m_player.stop();
-        setPlayerState(PlayState.Stopped);
+        setPlayerState(PlayerState.Stopped);
 
         // TODO: Alter to work with shuffle
         m_playlist.Position++;
@@ -229,14 +236,14 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         }
 
         play();
-        setPlayerState(PlayState.Playing);
+        setPlayerState(PlayerState.Playing);
     }
 
     public void previousTrack()
     {
         // TODO: Work out how to do this with shuffle
         m_player.stop();
-        setPlayerState(PlayState.Stopped);
+        setPlayerState(PlayerState.Stopped);
 
         m_playlist.Position--;
         if (m_onTrackChanged != null)
@@ -245,10 +252,10 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         }
 
         play();
-        setPlayerState(PlayState.Playing);
+        setPlayerState(PlayerState.Playing);
     }
 
-    public PlayState getPlayerState()
+    public PlayerState getPlayerState()
     {
         return m_playerState;
     }
@@ -276,9 +283,9 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
      *
      * @param newState the new player state
      */
-    private void setPlayerState(PlayState newState)
+    private void setPlayerState(PlayerState newState)
     {
-        PlayState prevState = m_playerState;
+        PlayerState prevState = m_playerState;
         m_playerState = newState;
 
         if (m_onPlayStateChanged != null)
@@ -287,7 +294,7 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         }
     }
 
-    enum PlayState
+    enum PlayerState
     {
         Paused,
         Playing,
@@ -301,6 +308,6 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
 
     public interface OnPlayStateChangedListener
     {
-        void onStateChanged(PlayState oldState, PlayState newState);
+        void onStateChanged(PlayerState oldState, PlayerState newState);
     }
 }

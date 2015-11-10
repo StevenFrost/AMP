@@ -80,11 +80,24 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
             @Override
             public void onItemClick(AdapterView<?> parent, View container, int position, long id)
             {
+            if (!m_bound)
+            {
+                return;
+            }
+
+            // Update the playlist bound to the service
+            m_service.setPlaylist(m_masterPlaylist);
+
+            // Play the selected track if it isn't the track that is already playing
+            if (m_service.getCurrentTrack() != m_masterPlaylist.Tracks.get(position))
+            {
+                m_service.stop();
                 m_masterPlaylist.Position = position;
                 m_service.play();
+            }
 
-                Intent intent = new Intent(DrawerActivity.this, PlayerActivity.class);
-                startActivity(intent);
+            Intent intent = new Intent(DrawerActivity.this, PlayerActivity.class);
+            startActivity(intent);
             }
         });
     }
@@ -148,7 +161,6 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
             MediaService.MediaBinder binder = (MediaService.MediaBinder)service;
 
             m_service = binder.getService();
-            m_service.setPlaylist(m_masterPlaylist);
             m_bound = true;
         }
 

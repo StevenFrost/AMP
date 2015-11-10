@@ -20,25 +20,28 @@ import java.util.concurrent.TimeUnit;
 
 public class PlayerActivity extends AppCompatActivity
 {
-    MediaService m_service;
-    boolean      m_bound = false;
+    private MediaService m_service;
+    private boolean      m_bound = false;
 
-    private Handler  m_handler = new Handler();
-    private boolean  m_updateTimecodeView = true;
-    private Runnable m_updateTimecodeViewRunnable = new Runnable()
+    private boolean      m_shuffle = false;
+    private boolean      m_repeat = false;
+
+    private Handler      m_handler = new Handler();
+    private boolean      m_updateTimecodeView = true;
+    private Runnable     m_updateTimecodeViewRunnable = new Runnable()
     {
         @Override
         public void run()
         {
-            if (m_updateTimecodeView)
-            {
-                int timecode = m_service.getPlayheadTimecode();
+        if (m_updateTimecodeView)
+        {
+            int timecode = m_service.getPlayheadTimecode();
 
-                ((SeekBar) findViewById(R.id.player_seek_bar)).setProgress(timecode);
-                ((TextView)findViewById(R.id.player_track_position)).setText(formatTimecode(timecode));
+            ((SeekBar) findViewById(R.id.player_seek_bar)).setProgress(timecode);
+            ((TextView)findViewById(R.id.player_track_position)).setText(formatTimecode(timecode));
 
-                m_handler.postDelayed(m_updateTimecodeViewRunnable, 500);
-            }
+            m_handler.postDelayed(m_updateTimecodeViewRunnable, 500);
+        }
         }
     };
 
@@ -57,14 +60,14 @@ public class PlayerActivity extends AppCompatActivity
         SeekBar seekBar = (SeekBar) findViewById(R.id.player_seek_bar);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
         {
-            private MediaService.PlayState m_stateOnStartTouch = MediaService.PlayState.Stopped;
+            private MediaService.PlayerState m_stateOnStartTouch = MediaService.PlayerState.Stopped;
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int timecode, boolean fromUser)
             {
                 if (fromUser)
                 {
-                    ((TextView)findViewById(R.id.player_track_position)).setText(formatTimecode(timecode));
+                    ((TextView) findViewById(R.id.player_track_position)).setText(formatTimecode(timecode));
                 }
             }
 
@@ -79,7 +82,7 @@ public class PlayerActivity extends AppCompatActivity
             public void onStopTrackingTouch(SeekBar seekBar)
             {
                 m_service.setPlayheadTimecode(seekBar.getProgress());
-                if (m_stateOnStartTouch == MediaService.PlayState.Playing)
+                if (m_stateOnStartTouch == MediaService.PlayerState.Playing)
                 {
                     m_service.play();
                 }
@@ -110,20 +113,43 @@ public class PlayerActivity extends AppCompatActivity
         // TODO: Make album art bitmap loading async via BitmapWorkerTask and AsyncDrawable.
 
         // Album art
-        ImageView albumArtView = (ImageView)findViewById(R.id.tablerow_song_albumart);
-        ImageView albumArtLargeView = (ImageView)findViewById(R.id.player_large_album_art);
-        try
+        ImageView albumArtPlaceholderView      = (ImageView)findViewById(R.id.tablerow_song_albumart_placeholder);
+        ImageView albumArtView                 = (ImageView)findViewById(R.id.tablerow_song_albumart);
+        ImageView albumArtLargePlaceholderView = (ImageView)findViewById(R.id.player_large_albumart_placeholder);
+        ImageView albumArtLargeView            = (ImageView)findViewById(R.id.player_large_albumart);
+
+        if (track.CoverArt != null)
         {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), track.CoverArt);
-            Bitmap albumArtSmall = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
-            Bitmap albumArtLarge = Bitmap.createScaledBitmap(bitmap, 512, 512, true);
-            albumArtView.setImageBitmap(albumArtSmall);
-            albumArtLargeView.setImageBitmap(albumArtLarge);
+            try
+            {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), track.CoverArt);
+                Bitmap albumArtSmall = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
+                Bitmap albumArtLarge = Bitmap.createScaledBitmap(bitmap, 512, 512, true);
+                albumArtView.setImageBitmap(albumArtSmall);
+                albumArtLargeView.setImageBitmap(albumArtLarge);
+
+                albumArtPlaceholderView.setVisibility(View.GONE);
+                albumArtView.setVisibility(View.VISIBLE);
+
+                albumArtLargePlaceholderView.setVisibility(View.GONE);
+                albumArtLargeView.setVisibility(View.VISIBLE);
+            }
+            catch (Exception ex)
+            {
+                // TODO: Revert to a more suitable album art bitmap here
+                ex.printStackTrace();
+            }
         }
-        catch (Exception ex)
+        else
         {
-            // TODO: Revert to a more suitable album art bitmap here
-            ex.printStackTrace();
+            albumArtView.setImageBitmap(null);
+            albumArtView.setImageBitmap(null);
+
+            albumArtPlaceholderView.setVisibility(View.VISIBLE);
+            albumArtView.setVisibility(View.GONE);
+
+            albumArtLargePlaceholderView.setVisibility(View.VISIBLE);
+            albumArtLargeView.setVisibility(View.GONE);
         }
 
         // Track title, artist and album
@@ -182,9 +208,6 @@ public class PlayerActivity extends AppCompatActivity
         m_service.nextTrack();
     }
 
-    private boolean m_shuffle = false;
-    private boolean m_repeat = false;
-
     public void onShuffleButtonClick(View view)
     {
         if (!m_shuffle)
@@ -230,7 +253,7 @@ public class PlayerActivity extends AppCompatActivity
             m_service.setOnPlayStateChangedListener(new MediaService.OnPlayStateChangedListener()
             {
                 @Override
-                public void onStateChanged(MediaService.PlayState oldState, MediaService.PlayState newState)
+                public void onStateChanged(MediaService.PlayerState oldState, MediaService.PlayerState newState)
                 {
                     switch(newState)
                     {
