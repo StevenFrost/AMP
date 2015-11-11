@@ -12,16 +12,6 @@
                  android:supportsRtl="true"
                  android:theme="@style/AppTheme.NoActionBar" >
 
-        <!--activity
-            android:name=".DrawerActivity"
-            android:label="@string/activity_songs" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-->
-
         <activity android:name=".LibraryActivity"
                   android:label="@string/title_activity_library"
                   android:theme="@style/AppTheme.NoActionBar" >
@@ -35,11 +25,11 @@
 
         <activity android:name=".PlayerActivity"
                   android:label="@string/title_activity_player"
-                  android:parentActivityName=".DrawerActivity"
+                  android:parentActivityName=".LibraryActivity"
                   android:theme="@style/AppTheme.NoActionBar" >
 
             <meta-data android:name="android.support.PARENT_ACTIVITY"
-                       android:value="com.frost.steven.amp.DrawerActivity" />
+                       android:value="com.frost.steven.amp.LibraryActivity" />
 
         </activity>
 
