@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.frost.steven.amp" >
+          package="com.frost.steven.amp" >
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme.NoActionBar" >
-        <activity
+    <application android:allowBackup="true"
+                 android:icon="@mipmap/ic_launcher"
+                 android:label="@string/app_name"
+                 android:supportsRtl="true"
+                 android:theme="@style/AppTheme.NoActionBar" >
+
+        <!--activity
             android:name=".DrawerActivity"
             android:label="@string/activity_songs" >
             <intent-filter>
@@ -20,22 +20,34 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".PlayerActivity"
-            android:label="@string/title_activity_player"
-            android:parentActivityName=".DrawerActivity"
-            android:theme="@style/AppTheme.NoActionBar" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.frost.steven.amp.DrawerActivity" />
+        </activity-->
+
+        <activity android:name=".LibraryActivity"
+                  android:label="@string/title_activity_library"
+                  android:theme="@style/AppTheme.NoActionBar" >
+
+            <intent-filter android:label="@string/app_name">
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
         </activity>
 
-        <service
-            android:name=".MediaService"
-            android:enabled="true"
-            android:exported="true" >
+        <activity android:name=".PlayerActivity"
+                  android:label="@string/title_activity_player"
+                  android:parentActivityName=".DrawerActivity"
+                  android:theme="@style/AppTheme.NoActionBar" >
+
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                       android:value="com.frost.steven.amp.DrawerActivity" />
+
+        </activity>
+
+        <service android:name=".MediaService"
+                 android:enabled="true"
+                 android:exported="true" >
         </service>
+
     </application>
 
 </manifest>
