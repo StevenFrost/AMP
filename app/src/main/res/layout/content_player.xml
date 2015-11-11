@@ -15,7 +15,6 @@
                android:paddingEnd="10dp"
                android:scaleType="fitCenter"
                android:src="@drawable/notes"
-               android:background="@color/colourGrey2"
                android:contentDescription="@string/cd_album_art"/>
 
     <ImageView android:id="@+id/player_large_albumart"

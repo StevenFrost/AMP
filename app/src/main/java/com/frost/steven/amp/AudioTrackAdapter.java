@@ -40,9 +40,10 @@ public class AudioTrackAdapter extends ArrayAdapter<AudioTrack>
             LayoutInflater inflater = ((Activity)m_context).getLayoutInflater();
             row = inflater.inflate(m_layoutResourceId, parent, false);
 
+            // viewGroup -> holder
             viewGroup = new AudioTrackViewGroup();
-            viewGroup.AlbumArtPlaceholder = (ImageView)row.findViewById(R.id.tablerow_song_albumart_placeholder);
-            viewGroup.AlbumArt = (ImageView)row.findViewById(R.id.tablerow_song_albumart);
+            //viewGroup.AlbumArtPlaceholder = (ImageView)row.findViewById(R.id.tablerow_song_albumart_placeholder);
+            //viewGroup.AlbumArt = (ImageView)row.findViewById(R.id.tablerow_song_albumart);
             viewGroup.Title = (TextView)row.findViewById(R.id.tablerow_song_title);
             viewGroup.Artist = (TextView)row.findViewById(R.id.tablerow_song_artist);
             viewGroup.Album = (TextView)row.findViewById(R.id.tablerow_song_album);

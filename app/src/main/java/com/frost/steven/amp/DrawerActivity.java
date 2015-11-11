@@ -58,7 +58,6 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
         };
 
         // Master playlist
-        m_masterPlaylist = new MasterPlaylist(getContentResolver());
 
         // Bind the media service
         Intent playIntent = new Intent(this, MediaService.class);

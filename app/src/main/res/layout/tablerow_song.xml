@@ -1,37 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="horizontal"
+              android:background="?android:attr/selectableItemBackground"
               android:layout_width="match_parent"
               android:layout_height="wrap_content">
 
-    <ImageView android:id="@+id/tablerow_song_albumart_placeholder"
-               android:layout_height="25pt"
-               android:layout_width="25pt"
-               android:layout_gravity="center"
-               android:layout_marginTop="2.5pt"
-               android:layout_marginLeft="5pt"
-               android:layout_marginRight="5pt"
-               android:layout_marginBottom="2.5pt"
-               android:paddingTop="6dp"
-               android:paddingStart="0dp"
-               android:paddingEnd="2dp"
-               android:scaleType="fitCenter"
-               android:src="@drawable/notes"
-               android:background="@color/colourGrey2"
-               android:contentDescription="@string/cd_album_art"/>
-
     <ImageView android:id="@+id/tablerow_song_albumart"
-               android:layout_height="25pt"
-               android:layout_width="25pt"
-               android:layout_gravity="center"
-               android:layout_marginTop="2.5pt"
-               android:layout_marginLeft="5pt"
-               android:layout_marginRight="5pt"
-               android:layout_marginBottom="2.5pt"
-               android:src="@null"
-               android:background="@color/colourGrey2"
-               android:contentDescription="@string/cd_album_art"
-               android:visibility="gone"/>
+               android:layout_width="50dp"
+               android:layout_height="50dp"
+               android:layout_marginTop="6dp"
+               android:layout_marginLeft="11dp"
+               android:layout_marginRight="11dp"
+               android:layout_marginBottom="6dp"
+               android:background="@color/colourGrey2"/>
 
     <LinearLayout android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
@@ -42,17 +23,20 @@
                   android:text="@string/placeholder_title"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
-                  android:textSize="8pt"/>
+                  android:textSize="18sp"/>
 
         <TextView android:id="@+id/tablerow_song_artist"
                   android:text="@string/placeholder_artist"
                   android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"/>
+                  android:layout_height="wrap_content"
+                  android:textSize="12sp"/>
 
         <TextView android:id="@+id/tablerow_song_album"
                   android:text="@string/placeholder_album"
                   android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"/>
+                  android:layout_height="wrap_content"
+                  android:textSize="12sp"
+                  android:visibility="gone"/>
 
     </LinearLayout>
 
