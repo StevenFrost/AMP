@@ -6,7 +6,7 @@ import android.graphics.drawable.BitmapDrawable;
 
 import java.lang.ref.WeakReference;
 
-class AsyncDrawable extends BitmapDrawable
+public class AsyncDrawable extends BitmapDrawable
 {
     private final WeakReference<BitmapWorkerTask> m_weakRef;
 

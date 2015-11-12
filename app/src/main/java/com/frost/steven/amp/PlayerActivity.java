@@ -113,7 +113,6 @@ public class PlayerActivity extends AppCompatActivity
         // TODO: Make album art bitmap loading async via BitmapWorkerTask and AsyncDrawable.
 
         // Album art
-        ImageView albumArtPlaceholderView      = (ImageView)findViewById(R.id.tablerow_song_albumart_placeholder);
         ImageView albumArtView                 = (ImageView)findViewById(R.id.tablerow_song_albumart);
         ImageView albumArtLargePlaceholderView = (ImageView)findViewById(R.id.player_large_albumart_placeholder);
         ImageView albumArtLargeView            = (ImageView)findViewById(R.id.player_large_albumart);
@@ -128,9 +127,6 @@ public class PlayerActivity extends AppCompatActivity
                 albumArtView.setImageBitmap(albumArtSmall);
                 albumArtLargeView.setImageBitmap(albumArtLarge);
 
-                albumArtPlaceholderView.setVisibility(View.GONE);
-                albumArtView.setVisibility(View.VISIBLE);
-
                 albumArtLargePlaceholderView.setVisibility(View.GONE);
                 albumArtLargeView.setVisibility(View.VISIBLE);
             }
@@ -144,9 +140,6 @@ public class PlayerActivity extends AppCompatActivity
         {
             albumArtView.setImageBitmap(null);
             albumArtView.setImageBitmap(null);
-
-            albumArtPlaceholderView.setVisibility(View.VISIBLE);
-            albumArtView.setVisibility(View.GONE);
 
             albumArtLargePlaceholderView.setVisibility(View.VISIBLE);
             albumArtLargeView.setVisibility(View.GONE);

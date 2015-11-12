@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-class BitmapWorkerTask extends AsyncTask<AudioTrack, Void, Bitmap>
+public class BitmapWorkerTask extends AsyncTask<AudioTrack, Void, Bitmap>
 {
     private final ContentResolver          m_resolver;
     private final WeakReference<ImageView> m_weakRef;
