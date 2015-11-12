@@ -32,7 +32,7 @@
                         android:layout_height="wrap_content"
                         android:background="@color/colourFrosty">
 
-            <include layout="@layout/tablerow_song"
+            <include layout="@layout/element_song"
                      android:layout_height="wrap_content"
                      android:layout_width="fill_parent"
                      android:layout_marginTop="2.5pt"

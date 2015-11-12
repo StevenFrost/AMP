@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
@@ -52,7 +53,7 @@ public class SongsFragment extends Fragment
         );
         m_playlistCreatorTask.setOnTrackInsertedListener(m_recyclerViewAdapter);
         m_playlistCreatorTask.setOnPlaylistCompleteListener(m_recyclerViewAdapter);
-        m_playlistCreatorTask.execute();
+        m_playlistCreatorTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override
@@ -130,7 +131,7 @@ public class SongsFragment extends Fragment
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
         {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.tablerow_song, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.element_song, parent, false);
             return new ViewHolder(view);
         }
 
@@ -184,7 +185,7 @@ public class SongsFragment extends Fragment
                     final BitmapWorkerTask worker = new BitmapWorkerTask(m_context.getContentResolver(), holder.m_albumArt, m_cache);
                     final AsyncDrawable asyncDrawable = new AsyncDrawable(getResources(), null, worker);
                     holder.m_albumArt.setImageDrawable(asyncDrawable);
-                    worker.execute(track);
+                    worker.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, track);
                 }
             }
             else if (track.CoverArt == null)
