@@ -14,8 +14,7 @@ public class AlbumsFragment extends Fragment
 
     public static AlbumsFragment getInstance(FragmentManager fragmentManager)
     {
-        AlbumsFragment fragment = new AlbumsFragment();
-        return fragment;
+        return new AlbumsFragment();
     }
 
     public AlbumsFragment() {}
