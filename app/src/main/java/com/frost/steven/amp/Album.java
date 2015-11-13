@@ -88,7 +88,7 @@ public class Album
 
                 String title  = cursor.getString(0);
                 String artist = cursor.getString(1);
-                long albumId  = cursor.getLong(1);
+                long albumId  = cursor.getLong(2);
 
                 Uri artworkUri = Uri.parse("content://media/external/audio/albumart");
                 Uri albumArtworkUri = ContentUris.withAppendedId(artworkUri, albumId);

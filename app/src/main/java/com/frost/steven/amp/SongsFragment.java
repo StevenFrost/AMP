@@ -2,8 +2,6 @@ package com.frost.steven.amp;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -11,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +19,7 @@ public class SongsFragment extends Fragment
 {
     private static final String FRAGMENT_ID = "com.frost.steven.amp.SongsFragment";
 
-    private LruCache<Uri, Bitmap> m_cache;
+    private BitmapProvider m_bitmapProvider;
 
     private RecyclerViewAdapter m_recyclerViewAdapter = null;
     private PlaylistCreator     m_playlistCreatorTask = null;
@@ -72,9 +69,9 @@ public class SongsFragment extends Fragment
         super.onViewCreated(view, savedInstanceState);
     }
 
-    public void setCache(LruCache<Uri, Bitmap> cache)
+    public void setBitmapProvider(BitmapProvider bitmapProvider)
     {
-        m_cache = cache;
+        m_bitmapProvider = bitmapProvider;
     }
 
     class RecyclerViewAdapter
@@ -156,48 +153,37 @@ public class SongsFragment extends Fragment
                 @Override
                 public void onClick(View view)
                 {
-                    LibraryActivity activity = (LibraryActivity)getActivity();
-                    if (!activity.isServiceBound())
-                    {
-                        return;
-                    }
+                LibraryActivity activity = (LibraryActivity)getActivity();
+                if (!activity.isServiceBound())
+                {
+                    return;
+                }
 
-                    MediaService mediaService = activity.getMediaService();
+                MediaService mediaService = activity.getMediaService();
 
-                    // Update the playlist bound to the service
-                    mediaService.setPlaylist(m_masterPlaylist);
+                // Update the playlist bound to the service
+                mediaService.setPlaylist(m_masterPlaylist);
 
-                    // Play the selected track if it isn't the track that is already playing
-                    if (mediaService.getCurrentTrack() != m_masterPlaylist.Tracks.get(position))
-                    {
-                        mediaService.stop();
-                        m_masterPlaylist.Position = position;
-                        mediaService.play();
-                    }
+                // Play the selected track if it isn't the track that is already playing
+                if (mediaService.getCurrentTrack() != m_masterPlaylist.Tracks.get(position))
+                {
+                    mediaService.stop();
+                    m_masterPlaylist.Position = position;
+                    mediaService.play();
+                }
 
-                    Intent intent = new Intent(getActivity(), PlayerActivity.class);
-                    startActivity(intent);
+                Intent intent = new Intent(getActivity(), PlayerActivity.class);
+                startActivity(intent);
                 }
             });
 
-            if (track.CoverArt != null && BitmapWorkerTask.cancelOutstandingWork(track, holder.m_albumArt))
-            {
-                Bitmap albumArtBitmap = m_cache.get(track.CoverArt);
-                if (albumArtBitmap != null)
-                {
-                    holder.m_albumArt.setImageBitmap(albumArtBitmap);
-                }
-                else
-                {
-                    final BitmapWorkerTask worker = new BitmapWorkerTask(m_context.getContentResolver(), holder.m_albumArt, m_cache);
-                    final AsyncDrawable asyncDrawable = new AsyncDrawable(getResources(), null, worker);
-                    holder.m_albumArt.setImageDrawable(asyncDrawable);
-                    worker.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, track);
-                }
-            }
-            else if (track.CoverArt == null)
+            if (track.CoverArt == null)
             {
                 holder.m_albumArt.setImageBitmap(null);
+            }
+            else
+            {
+                m_bitmapProvider.makeRequest(holder.m_albumArt, track.CoverArt);
             }
         }
 

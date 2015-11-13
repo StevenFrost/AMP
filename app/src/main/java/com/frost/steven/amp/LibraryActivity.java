@@ -4,8 +4,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.IBinder;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -18,17 +16,15 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.LruCache;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 public class LibraryActivity extends AppCompatActivity
 {
-    private LruCache<Uri, Bitmap> m_cache;
-
-    MediaService m_mediaService;
-    boolean      m_serviceBound = false;
+    BitmapProvider m_bitmapProvider;
+    MediaService   m_mediaService;
+    boolean        m_serviceBound = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -45,17 +41,8 @@ public class LibraryActivity extends AppCompatActivity
         ViewPager viewPager = (ViewPager)findViewById(R.id.container);
         viewPager.setAdapter(sectionsPagerAdapter);
 
-        // LRU Cache
-        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-        final int cacheSize = maxMemory / 4;
-        m_cache = new LruCache<Uri, Bitmap>(cacheSize)
-        {
-            @Override
-            protected int sizeOf(Uri key, Bitmap bitmap)
-            {
-                return bitmap.getByteCount() / 1024;
-            }
-        };
+        // Bitmap Provider
+        m_bitmapProvider = new BitmapProvider(getResources(), getContentResolver());
 
         // Media service
         Intent intent = new Intent(this, MediaService.class);
@@ -132,7 +119,7 @@ public class LibraryActivity extends AppCompatActivity
             {
             case 0:
                 AlbumsFragment albumsFragment = AlbumsFragment.getInstance();
-                albumsFragment.setCache(m_cache);
+                albumsFragment.setBitmapProvider(m_bitmapProvider);
                 return albumsFragment;
             case 1:
                 return ArtistsFragment.getInstance(getSupportFragmentManager());
@@ -140,7 +127,7 @@ public class LibraryActivity extends AppCompatActivity
                 return PlaylistsFragment.getInstance(getSupportFragmentManager());
             case 3:
                 SongsFragment songsFragment = SongsFragment.getInstance();
-                songsFragment.setCache(m_cache);
+                songsFragment.setBitmapProvider(m_bitmapProvider);
                 return songsFragment;
             }
             return null;

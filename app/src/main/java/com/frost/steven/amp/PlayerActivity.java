@@ -110,7 +110,7 @@ public class PlayerActivity extends AppCompatActivity
      */
     private void refreshVisibleTrackData(AudioTrack track)
     {
-        // TODO: Make album art bitmap loading async via BitmapWorkerTask and AsyncDrawable.
+        // TODO: Make album art bitmap loading async
 
         // Album art
         ImageView albumArtView                 = (ImageView)findViewById(R.id.tablerow_song_albumart);
