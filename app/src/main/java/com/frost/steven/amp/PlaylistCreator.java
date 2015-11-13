@@ -103,13 +103,19 @@ public class PlaylistCreator extends AsyncTask<Void, AudioTrack, Void>
     @Override
     protected void onProgressUpdate(AudioTrack... progress)
     {
-        m_onTrackInserted.onTrackInserted(progress[0]);
+        if (m_onTrackInserted != null)
+        {
+            m_onTrackInserted.onTrackInserted(progress[0]);
+        }
     }
 
     @Override
     protected void onPostExecute(Void result)
     {
-        m_onPlaylistComplete.onPlaylistComplete();
+        if (m_onPlaylistComplete != null)
+        {
+            m_onPlaylistComplete.onPlaylistComplete();
+        }
     }
 
     public void setOnTrackInsertedListener(OnTrackInsertedListener listener)

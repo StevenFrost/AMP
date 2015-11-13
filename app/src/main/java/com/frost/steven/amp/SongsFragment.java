@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.LruCache;
@@ -30,7 +29,7 @@ public class SongsFragment extends Fragment
     private Playlist            m_masterPlaylist;
 
 
-    public static SongsFragment getInstance(FragmentManager fragmentManager)
+    public static SongsFragment getInstance()
     {
         return new SongsFragment();
     }
@@ -85,16 +84,24 @@ public class SongsFragment extends Fragment
         private Context  m_context;
         private Playlist m_playlist;
 
+        private int m_tracksInserted = 0;
+
         @Override
         public void onPlaylistComplete()
         {
             m_playlistCreatorTask = null;
+            notifyDataSetChanged();
         }
 
         @Override
         public void onTrackInserted(AudioTrack track)
         {
-            notifyDataSetChanged();
+            ++m_tracksInserted;
+
+            if (m_tracksInserted % 10 == 0)
+            {
+                notifyDataSetChanged();
+            }
         }
 
         class ViewHolder extends RecyclerView.ViewHolder

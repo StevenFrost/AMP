@@ -131,13 +131,15 @@ public class LibraryActivity extends AppCompatActivity
             switch (position)
             {
             case 0:
-                return AlbumsFragment.getInstance(getSupportFragmentManager());
+                AlbumsFragment albumsFragment = AlbumsFragment.getInstance();
+                albumsFragment.setCache(m_cache);
+                return albumsFragment;
             case 1:
                 return ArtistsFragment.getInstance(getSupportFragmentManager());
             case 2:
                 return PlaylistsFragment.getInstance(getSupportFragmentManager());
             case 3:
-                SongsFragment songsFragment = SongsFragment.getInstance(getSupportFragmentManager());
+                SongsFragment songsFragment = SongsFragment.getInstance();
                 songsFragment.setCache(m_cache);
                 return songsFragment;
             }
