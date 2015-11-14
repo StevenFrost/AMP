@@ -5,40 +5,52 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content">
 
-    <ImageView android:id="@+id/tablerow_song_albumart"
-               android:layout_width="50dp"
-               android:layout_height="50dp"
+    <Space android:layout_width="11dp"
+           android:layout_height="55dp"
+           android:layout_marginTop="6dp"
+           android:layout_marginBottom="6dp" />
+
+    <ImageView android:id="@+id/element_song_artwork"
+               android:layout_width="55dp"
+               android:layout_height="55dp"
                android:layout_marginTop="6dp"
-               android:layout_marginLeft="11dp"
-               android:layout_marginRight="11dp"
+               android:layout_marginEnd="11dp"
                android:layout_marginBottom="6dp"
                android:background="@color/colourGrey2"
                android:contentDescription="@string/cd_album_art"/>
 
-    <LinearLayout android:layout_width="wrap_content"
+    <LinearLayout android:layout_width="0dp"
+                  android:layout_weight="1"
                   android:layout_height="wrap_content"
                   android:orientation="vertical"
                   android:layout_gravity="center_vertical">
 
-        <TextView android:id="@+id/tablerow_song_title"
+        <TextView android:id="@+id/element_song_title"
                   android:text="@string/placeholder_title"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
                   android:textSize="18sp"/>
 
-        <TextView android:id="@+id/tablerow_song_artist"
+        <TextView android:id="@+id/element_song_artist"
                   android:text="@string/placeholder_artist"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
                   android:textSize="12sp"/>
 
-        <TextView android:id="@+id/tablerow_song_album"
+        <TextView android:id="@+id/element_song_album"
                   android:text="@string/placeholder_album"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:textSize="12sp"
-                  android:visibility="gone"/>
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:textSize="12sp"/>
 
     </LinearLayout>
+
+    <TextView android:id="@+id/element_song_duration"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center_vertical"
+              android:text="@string/null_timecode"
+              android:layout_marginStart="11dp"
+              android:layout_marginEnd="11dp"/>
 
 </LinearLayout>

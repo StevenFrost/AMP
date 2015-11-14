@@ -109,16 +109,18 @@ public class SongsFragment extends Fragment
             public final TextView  m_title;
             public final TextView  m_artist;
             public final TextView  m_album;
+            public final TextView  m_duration;
 
             public ViewHolder(View view)
             {
                 super(view);
 
                 m_view     = view;
-                m_albumArt = (ImageView)view.findViewById(R.id.tablerow_song_albumart);
-                m_title    = (TextView) view.findViewById(R.id.tablerow_song_title);
-                m_artist   = (TextView) view.findViewById(R.id.tablerow_song_artist);
-                m_album    = (TextView) view.findViewById(R.id.tablerow_song_album);
+                m_albumArt = (ImageView)view.findViewById(R.id.element_song_artwork);
+                m_title    = (TextView)view.findViewById(R.id.element_song_title);
+                m_artist   = (TextView)view.findViewById(R.id.element_song_artist);
+                m_album    = (TextView)view.findViewById(R.id.element_song_album);
+                m_duration = (TextView)view.findViewById(R.id.element_song_duration);
             }
         }
 
@@ -148,6 +150,7 @@ public class SongsFragment extends Fragment
             holder.m_title.setText(track.Title);
             holder.m_artist.setText(track.Artist);
             holder.m_album.setText(track.Album);
+            holder.m_duration.setText(track.getFormattedDuration());
 
             holder.m_view.setOnClickListener(new View.OnClickListener()
             {

@@ -16,8 +16,6 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import java.util.concurrent.TimeUnit;
-
 public class PlayerActivity extends AppCompatActivity
 {
     private MediaService m_service;
@@ -38,7 +36,7 @@ public class PlayerActivity extends AppCompatActivity
             int timecode = m_service.getPlayheadTimecode();
 
             ((SeekBar) findViewById(R.id.player_seek_bar)).setProgress(timecode);
-            ((TextView)findViewById(R.id.player_track_position)).setText(formatTimecode(timecode));
+            ((TextView)findViewById(R.id.player_track_position)).setText(AudioTrack.formatDuration(timecode));
 
             m_handler.postDelayed(m_updateTimecodeViewRunnable, 500);
         }
@@ -67,7 +65,7 @@ public class PlayerActivity extends AppCompatActivity
             {
                 if (fromUser)
                 {
-                    ((TextView) findViewById(R.id.player_track_position)).setText(formatTimecode(timecode));
+                    ((TextView) findViewById(R.id.player_track_position)).setText(AudioTrack.formatDuration(timecode));
                 }
             }
 
@@ -113,7 +111,7 @@ public class PlayerActivity extends AppCompatActivity
         // TODO: Make album art bitmap loading async
 
         // Album art
-        ImageView albumArtView                 = (ImageView)findViewById(R.id.tablerow_song_albumart);
+        ImageView albumArtView                 = (ImageView)findViewById(R.id.element_song_artwork);
         ImageView albumArtLargePlaceholderView = (ImageView)findViewById(R.id.player_large_albumart_placeholder);
         ImageView albumArtLargeView            = (ImageView)findViewById(R.id.player_large_albumart);
 
@@ -146,23 +144,15 @@ public class PlayerActivity extends AppCompatActivity
         }
 
         // Track title, artist and album
-        ((TextView)findViewById(R.id.tablerow_song_title)).setText(track.Title);
-        ((TextView)findViewById(R.id.tablerow_song_artist)).setText(track.Artist);
-        ((TextView)findViewById(R.id.tablerow_song_album)).setText(track.Album);
+        ((TextView)findViewById(R.id.element_song_title)).setText(track.Title);
+        ((TextView)findViewById(R.id.element_song_artist)).setText(track.Artist);
+        ((TextView)findViewById(R.id.element_song_album)).setText(track.Album);
 
         // Static timecode views
-        ((TextView)findViewById(R.id.player_track_duration)).setText(formatTimecode(track.Duration));
+        ((TextView)findViewById(R.id.player_track_duration)).setText(track.getFormattedDuration());
         ((SeekBar)findViewById(R.id.player_seek_bar)).setMax(track.Duration);
 
         m_handler.post(m_updateTimecodeViewRunnable);
-    }
-
-    private String formatTimecode(long milliseconds)
-    {
-        return String.format("%d:%02d",
-            TimeUnit.MILLISECONDS.toMinutes(milliseconds) % TimeUnit.HOURS.toMinutes(1),
-            TimeUnit.MILLISECONDS.toSeconds(milliseconds) % TimeUnit.MINUTES.toSeconds(1)
-        );
     }
 
     public void onPrevButtonClick(View view)

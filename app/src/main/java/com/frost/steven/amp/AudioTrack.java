@@ -2,6 +2,8 @@ package com.frost.steven.amp;
 
 import android.net.Uri;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Basic representation of an audio track that holds the title, artist, album
  * and any available cover art in a single structure that can be bound to a
@@ -36,5 +38,18 @@ public class AudioTrack
         Data = data;
         CoverArt = coverArt;
         Duration = duration;
+    }
+
+    public String getFormattedDuration()
+    {
+        return formatDuration(Duration);
+    }
+
+    public static String formatDuration(int milliseconds)
+    {
+        return String.format("%d:%02d",
+            TimeUnit.MILLISECONDS.toMinutes(milliseconds) % TimeUnit.HOURS.toMinutes(1),
+            TimeUnit.MILLISECONDS.toSeconds(milliseconds) % TimeUnit.MINUTES.toSeconds(1)
+        );
     }
 }
