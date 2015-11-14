@@ -19,9 +19,9 @@ import android.view.MenuItem;
 
 public class LibraryActivity extends AppCompatActivity
 {
-    BitmapProvider m_bitmapProvider;
-    MediaService   m_mediaService;
-    boolean        m_serviceBound = false;
+    private BitmapProvider m_bitmapProvider;
+    private MediaService   m_mediaService;
+    private boolean        m_serviceBound = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -44,7 +44,7 @@ public class LibraryActivity extends AppCompatActivity
         // Media service
         Intent intent = new Intent(this, MediaService.class);
         bindService(intent, m_connection, Context.BIND_AUTO_CREATE);
-        startService(intent);
+        //startService(intent);
 
         // Tabs
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -54,8 +54,11 @@ public class LibraryActivity extends AppCompatActivity
     @Override
     protected void onDestroy()
     {
-        super.onDestroy();
         unbindService(m_connection);
+        Intent intent = new Intent(this, MediaService.class);
+        stopService(intent);
+
+        super.onDestroy();
     }
 
     @Override
@@ -75,6 +78,17 @@ public class LibraryActivity extends AppCompatActivity
             startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        moveTaskToBack(true);
+    }
+
+    public BitmapProvider getBitmapProvider()
+    {
+        return m_bitmapProvider;
     }
 
     /**
@@ -103,9 +117,7 @@ public class LibraryActivity extends AppCompatActivity
             switch (position)
             {
             case 0:
-                AlbumsFragment albumsFragment = AlbumsFragment.getInstance();
-                albumsFragment.setBitmapProvider(m_bitmapProvider);
-                return albumsFragment;
+                return AlbumsFragment.getInstance();
             case 1:
                 return ArtistsFragment.getInstance(getSupportFragmentManager());
             case 2:

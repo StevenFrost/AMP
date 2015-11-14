@@ -31,15 +31,11 @@ public class PlayerActivity extends AppCompatActivity
         @Override
         public void run()
         {
-        if (m_updateTimecodeView)
-        {
-            int timecode = m_service.getPlayheadTimecode();
-
-            ((SeekBar) findViewById(R.id.player_seek_bar)).setProgress(timecode);
-            ((TextView)findViewById(R.id.player_track_position)).setText(AudioTrack.formatDuration(timecode));
-
-            m_handler.postDelayed(m_updateTimecodeViewRunnable, 500);
-        }
+            if (m_updateTimecodeView)
+            {
+                updateTrackPositionInterface();
+                m_handler.postDelayed(m_updateTimecodeViewRunnable, 500);
+            }
         }
     };
 
@@ -48,11 +44,6 @@ public class PlayerActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
-
-        // Bind the media service
-        Intent playIntent = new Intent(this, MediaService.class);
-        bindService(playIntent, m_connection, Context.BIND_AUTO_CREATE);
-        startService(playIntent);
 
         // Seekbar listener
         SeekBar seekBar = (SeekBar) findViewById(R.id.player_seek_bar);
@@ -89,16 +80,31 @@ public class PlayerActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+    }
+
+    @Override
     protected void onStart()
     {
         super.onStart();
+
+        Intent playIntent = new Intent(this, MediaService.class);
+        bindService(playIntent, m_connection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onStop()
     {
+        m_updateTimecodeView = false;
+        if (m_bound)
+        {
+            m_bound = false;
+            unbindService(m_connection);
+        }
+
         super.onStop();
-        unbindService(m_connection);
     }
 
     /**
@@ -147,6 +153,7 @@ public class PlayerActivity extends AppCompatActivity
         ((TextView)findViewById(R.id.element_song_title)).setText(track.Title);
         ((TextView)findViewById(R.id.element_song_artist)).setText(track.Artist);
         ((TextView)findViewById(R.id.element_song_album)).setText(track.Album);
+        (findViewById(R.id.element_song_duration)).setVisibility(View.GONE);
 
         // Static timecode views
         ((TextView)findViewById(R.id.player_track_duration)).setText(track.getFormattedDuration());
@@ -161,6 +168,7 @@ public class PlayerActivity extends AppCompatActivity
         if (m_service.getPlayheadTimecode() > PREV_THRESHOLD)
         {
             m_service.setPlayheadTimecode(0);
+            updateTrackPositionInterface();
         }
         else
         {
@@ -217,6 +225,14 @@ public class PlayerActivity extends AppCompatActivity
         m_repeat = !m_repeat;
     }
 
+    private void updateTrackPositionInterface()
+    {
+        int timecode = m_service.getPlayheadTimecode();
+
+        ((SeekBar) findViewById(R.id.player_seek_bar)).setProgress(timecode);
+        ((TextView) findViewById(R.id.player_track_position)).setText(AudioTrack.formatDuration(timecode));
+    }
+
     private ServiceConnection m_connection = new ServiceConnection()
     {
         @Override
@@ -262,6 +278,7 @@ public class PlayerActivity extends AppCompatActivity
         public void onServiceDisconnected(ComponentName name)
         {
             m_bound = false;
+            m_updateTimecodeView = false;
         }
     };
 }

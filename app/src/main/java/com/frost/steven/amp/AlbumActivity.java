@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -88,6 +89,13 @@ public class AlbumActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
+        int itemID = item.getItemId();
+        if (itemID == android.R.id.home)
+        {
+            NavUtils.navigateUpFromSameTask(this);
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 

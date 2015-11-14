@@ -1,5 +1,7 @@
 package com.frost.steven.amp;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -21,31 +23,14 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
 
     // State
     private PlayerState m_playerState = PlayerState.Stopped;
-
-    private Playlist m_playlist = null;
+    private Playlist    m_playlist = null;
 
     // Assorted private members
     private final IBinder m_binder = new MediaBinder();
     private final Random  m_random = new Random();
     private MediaPlayer   m_player = null;
 
-    /**
-     * Basic binder extension for the media service
-     */
-    public class MediaBinder extends Binder
-    {
-        MediaService getService()
-        {
-            return MediaService.this;
-        }
-    }
-
-    /**
-     * Default constructor
-     */
-    public MediaService()
-    {
-    }
+    public MediaService() {}
 
     @Override
     public void onCreate()
@@ -59,6 +44,16 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         m_player.setOnPreparedListener(this);
         m_player.setOnCompletionListener(this);
         m_player.setOnErrorListener(this);
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        stopForeground(true);
+        m_player.reset();
+        m_player.release();
+
+        super.onDestroy();
     }
 
     @Override
@@ -76,11 +71,7 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public boolean onUnbind(Intent intent)
     {
-        m_player.stop();
-        m_player.release();
-
-        setPlayerState(PlayerState.Stopped);
-
+        stop();
         return false;
     }
 
@@ -89,6 +80,22 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
     {
         player.start();
         setPlayerState(PlayerState.Playing);
+
+        Intent notIntent = new Intent(this, LibraryActivity.class);
+        notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendInt = PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Notification.Builder builder = new Notification.Builder(this);
+
+        builder.setContentIntent(pendInt)
+                .setSmallIcon(R.drawable.notes)
+                .setTicker("My Song")
+                .setOngoing(true)
+                .setContentTitle("Playing")
+        .setContentText("The Song Title");
+        Notification not = builder.build();
+
+        startForeground(1337, not);
     }
 
     @Override
@@ -188,8 +195,11 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
 
     public void stop()
     {
-        m_player.stop();
-        setPlayerState(PlayerState.Stopped);
+        if (m_playerState != PlayerState.Stopped)
+        {
+            m_player.stop();
+            setPlayerState(PlayerState.Stopped);
+        }
     }
 
     /**
@@ -299,6 +309,17 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         Paused,
         Playing,
         Stopped
+    }
+
+    /**
+     * Basic binder extension for the media service
+     */
+    public class MediaBinder extends Binder
+    {
+        MediaService getService()
+        {
+            return MediaService.this;
+        }
     }
 
     public interface OnTrackChangedListener

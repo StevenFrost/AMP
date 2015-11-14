@@ -22,7 +22,7 @@ public class AlbumsFragment extends Fragment
     private static final String FRAGMENT_ID = "com.frost.steven.amp.AlbumsFragment";
     public static final  String BUNDLE_PARCEL_ALBUM = "com.frost.steven.amp.BundleParcelAlbum";
 
-    private BitmapProvider m_bitmapProvider;
+    private LibraryActivity m_activity;
 
     private RecyclerViewAdapter m_recyclerViewAdapter = null;
     private Album.ListCreator   m_albumListCreatorTask = null;
@@ -40,6 +40,8 @@ public class AlbumsFragment extends Fragment
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        m_activity = (LibraryActivity)getActivity();
 
         m_albums = new ArrayList<>();
         m_recyclerViewAdapter = new RecyclerViewAdapter(getActivity(), m_albums);
@@ -70,9 +72,10 @@ public class AlbumsFragment extends Fragment
         super.onViewCreated(view, savedInstanceState);
     }
 
-    public void setBitmapProvider(BitmapProvider bitmapProvider)
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState)
     {
-        m_bitmapProvider = bitmapProvider;
+        super.onActivityCreated(savedInstanceState);
     }
 
     class RecyclerViewAdapter
@@ -166,7 +169,7 @@ public class AlbumsFragment extends Fragment
             }
             else
             {
-                m_bitmapProvider.makeRequest(holder.m_artwork, album.Artwork);
+                m_activity.getBitmapProvider().makeRequest(holder.m_artwork, album.Artwork);
             }
         }
 

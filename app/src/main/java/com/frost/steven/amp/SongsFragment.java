@@ -25,7 +25,6 @@ public class SongsFragment extends Fragment
     private PlaylistCreator     m_playlistCreatorTask = null;
     private Playlist            m_masterPlaylist;
 
-
     public static SongsFragment getInstance()
     {
         return new SongsFragment();
