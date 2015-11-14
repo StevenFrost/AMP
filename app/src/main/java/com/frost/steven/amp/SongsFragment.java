@@ -163,15 +163,16 @@ public class SongsFragment extends Fragment
                     }
 
                     MediaService mediaService = activity.getMediaService();
+                    AudioTrack currentTrack = mediaService.getCurrentTrack();
 
                     // Update the playlist bound to the service
                     mediaService.setPlaylist(m_masterPlaylist);
+                    m_masterPlaylist.Position = position;
 
                     // Play the selected track if it isn't the track that is already playing
-                    if (mediaService.getCurrentTrack() != m_masterPlaylist.Tracks.get(position))
+                    if (currentTrack != m_masterPlaylist.Tracks.get(position))
                     {
                         mediaService.stop();
-                        m_masterPlaylist.Position = position;
                         mediaService.play();
                     }
 

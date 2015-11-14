@@ -210,7 +210,11 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
      */
     public AudioTrack getCurrentTrack()
     {
-        return m_playlist.Tracks.get(m_playlist.Position);
+        if (m_playlist != null && m_playlist.Tracks != null)
+        {
+            return m_playlist.Tracks.get(m_playlist.Position);
+        }
+        return null;
     }
 
     /**
