@@ -95,6 +95,7 @@ public class SongsFragment extends Fragment
         {
             ++m_tracksInserted;
 
+            // TODO: Adjust this for the current number of visible elements on screen
             if (m_tracksInserted % 10 == 0)
             {
                 notifyDataSetChanged();

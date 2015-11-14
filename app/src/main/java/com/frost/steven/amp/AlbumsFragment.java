@@ -1,6 +1,7 @@
 package com.frost.steven.amp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -46,8 +47,8 @@ public class AlbumsFragment extends Fragment
             getActivity().getContentResolver(),
             m_albums
         );
-        m_albumListCreatorTask.setOnAlbumInsertedListener(null);
-        m_albumListCreatorTask.setOnListCompletedListener(null);
+        m_albumListCreatorTask.setOnAlbumInsertedListener(m_recyclerViewAdapter);
+        m_albumListCreatorTask.setOnListCompletedListener(m_recyclerViewAdapter);
         m_albumListCreatorTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
@@ -80,16 +81,25 @@ public class AlbumsFragment extends Fragment
         private Context     m_context;
         private List<Album> m_albums;
 
+        private int m_albumsInserted = 0;
+
         @Override
         public void onListCompleted()
         {
             m_albumListCreatorTask = null;
+            notifyDataSetChanged();
         }
 
         @Override
         public void onAlbumInserted(Album album)
         {
-            notifyDataSetChanged();
+            ++m_albumsInserted;
+
+            // TODO: Adjust this for the current number of visible elements on screen
+            if (m_albumsInserted % 10 == 0)
+            {
+                notifyDataSetChanged();
+            }
         }
 
         class ViewHolder extends RecyclerView.ViewHolder
@@ -141,7 +151,8 @@ public class AlbumsFragment extends Fragment
                 @Override
                 public void onClick(View view)
                 {
-                    // TODO: Start the album activity
+                    Intent intent = new Intent(getActivity(), AlbumActivity.class);
+                    startActivity(intent);
                 }
             });
 
