@@ -18,6 +18,9 @@
     <!-- Player -->
     <string name="null_timecode">00:00</string>
 
+    <!-- Menu -->
+    <string name="menu_player">Player</string>
+
     <!-- Accessibility -->
     <string name="cd_prev">Previous</string>
     <string name="cd_play">Play</string>
