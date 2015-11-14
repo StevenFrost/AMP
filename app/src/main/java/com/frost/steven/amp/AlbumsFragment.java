@@ -20,6 +20,7 @@ import java.util.List;
 public class AlbumsFragment extends Fragment
 {
     private static final String FRAGMENT_ID = "com.frost.steven.amp.AlbumsFragment";
+    public static final  String BUNDLE_PARCEL_ALBUM = "com.frost.steven.amp.BundleParcelAlbum";
 
     private BitmapProvider m_bitmapProvider;
 
@@ -152,6 +153,9 @@ public class AlbumsFragment extends Fragment
                 public void onClick(View view)
                 {
                     Intent intent = new Intent(getActivity(), AlbumActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable(BUNDLE_PARCEL_ALBUM, m_albums.get(position));
+                    intent.putExtras(bundle);
                     startActivity(intent);
                 }
             });

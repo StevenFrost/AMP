@@ -24,7 +24,7 @@ public class BitmapProvider
     private static final int m_cacheSize = m_maxMemory / 4;
 
     private Map<Uri, Worker>      m_bitmapTasks;
-    private LruCache<Uri, Bitmap> m_cache;
+    private LruCache<Uri, Bitmap> m_cache;      // TODO: Support bitmaps of different sizes
 
     private Resources       m_resources;
     private ContentResolver m_resolver;

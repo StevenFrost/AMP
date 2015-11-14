@@ -154,27 +154,27 @@ public class SongsFragment extends Fragment
                 @Override
                 public void onClick(View view)
                 {
-                LibraryActivity activity = (LibraryActivity)getActivity();
-                if (!activity.isServiceBound())
-                {
-                    return;
-                }
+                    LibraryActivity activity = (LibraryActivity)getActivity();
+                    if (!activity.isServiceBound())
+                    {
+                        return;
+                    }
 
-                MediaService mediaService = activity.getMediaService();
+                    MediaService mediaService = activity.getMediaService();
 
-                // Update the playlist bound to the service
-                mediaService.setPlaylist(m_masterPlaylist);
+                    // Update the playlist bound to the service
+                    mediaService.setPlaylist(m_masterPlaylist);
 
-                // Play the selected track if it isn't the track that is already playing
-                if (mediaService.getCurrentTrack() != m_masterPlaylist.Tracks.get(position))
-                {
-                    mediaService.stop();
-                    m_masterPlaylist.Position = position;
-                    mediaService.play();
-                }
+                    // Play the selected track if it isn't the track that is already playing
+                    if (mediaService.getCurrentTrack() != m_masterPlaylist.Tracks.get(position))
+                    {
+                        mediaService.stop();
+                        m_masterPlaylist.Position = position;
+                        mediaService.play();
+                    }
 
-                Intent intent = new Intent(getActivity(), PlayerActivity.class);
-                startActivity(intent);
+                    Intent intent = new Intent(getActivity(), PlayerActivity.class);
+                    startActivity(intent);
                 }
             });
 

@@ -5,6 +5,8 @@ import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 
@@ -15,18 +17,58 @@ import java.util.List;
  * Simple POD type containing the title of an album and a Uri to its artwork
  * if available.
  */
-public class Album
+public class Album implements Parcelable
 {
+    public Long   AlbumID;
     public String Title;
     public String Artist;
     public Uri    Artwork;
 
-    public Album(String title, String artist, @Nullable Uri artwork)
+    public Album(Long albumID, String title, String artist, @Nullable Uri artwork)
     {
+        AlbumID = albumID;
         Title = title;
         Artist = artist;
         Artwork = artwork;
     }
+
+    public Album(Parcel parcel)
+    {
+        AlbumID = parcel.readLong();
+        Title = parcel.readString();
+        Artist = parcel.readString();
+
+        String artworkPath = parcel.readString();
+        Artwork = artworkPath == null ? null : Uri.parse(artworkPath);
+    }
+
+    @Override
+    public int describeContents()
+    {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags)
+    {
+        dest.writeLong(AlbumID);
+        dest.writeString(Title);
+        dest.writeString(Artist);
+        dest.writeString(Artwork == null ? null : Artwork.toString());
+    }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator()
+    {
+        public Album createFromParcel(Parcel parcel)
+        {
+            return new Album(parcel);
+        }
+
+        public Album[] newArray(int size)
+        {
+            return new Album[size];
+        }
+    };
 
     /**
      * The list creator is an asynchronous task that generates a list of albums
@@ -88,10 +130,10 @@ public class Album
 
                 String title  = cursor.getString(0);
                 String artist = cursor.getString(1);
-                long albumId  = cursor.getLong(2);
+                long albumID  = cursor.getLong(2);
 
                 Uri artworkUri = Uri.parse("content://media/external/audio/albumart");
-                Uri albumArtworkUri = ContentUris.withAppendedId(artworkUri, albumId);
+                Uri albumArtworkUri = ContentUris.withAppendedId(artworkUri, albumID);
 
                 try
                 {
@@ -105,7 +147,7 @@ public class Album
                     albumArtworkUri = null;
                 }
 
-                Album album = new Album(title, artist, albumArtworkUri);
+                Album album = new Album(albumID, title, artist, albumArtworkUri);
                 m_albums.add(album);
                 publishProgress(album);
             }
