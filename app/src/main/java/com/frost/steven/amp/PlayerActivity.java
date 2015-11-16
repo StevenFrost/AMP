@@ -210,6 +210,7 @@ public class PlayerActivity extends AppCompatActivity
             ((ImageButton) view).setImageResource(R.drawable.player_shuffle);
         }
         m_shuffle = !m_shuffle;
+        m_service.setShuffle(m_shuffle);
     }
 
     public void onRepeatButtonClick(View view)
@@ -223,6 +224,7 @@ public class PlayerActivity extends AppCompatActivity
             ((ImageButton) view).setImageResource(R.drawable.player_repeat);
         }
         m_repeat = !m_repeat;
+        m_service.setRepeat(m_repeat);
     }
 
     private void updateTrackPositionInterface()
@@ -258,13 +260,16 @@ public class PlayerActivity extends AppCompatActivity
                     {
                     case Playing:
                         m_updateTimecodeView = true;
+                        ((ImageButton)findViewById(R.id.player_play_button)).setImageResource(R.drawable.player_pause);
                         m_handler.post(m_updateTimecodeViewRunnable);
                         break;
                     case Paused:
                         m_updateTimecodeView = false;
+                        ((ImageButton)findViewById(R.id.player_play_button)).setImageResource(R.drawable.player_play);
                         break;
                     case Stopped:
                         m_updateTimecodeView = false;
+                        ((ImageButton)findViewById(R.id.player_play_button)).setImageResource(R.drawable.player_play);
                         break;
                     }
                 }

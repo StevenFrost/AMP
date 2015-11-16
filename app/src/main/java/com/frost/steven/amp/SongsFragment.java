@@ -123,11 +123,6 @@ public class SongsFragment extends Fragment
             }
         }
 
-        public AudioTrack getValueAt(int position)
-        {
-            return m_playlist.Tracks.get(position);
-        }
-
         public RecyclerViewAdapter(Context context, Playlist playlist)
         {
             m_context = context;
@@ -144,7 +139,7 @@ public class SongsFragment extends Fragment
         @Override
         public void onBindViewHolder(final ViewHolder holder, final int position)
         {
-            AudioTrack track = getValueAt(position);
+            AudioTrack track = m_playlist.getUnshuffledTrack(position);
 
             holder.m_title.setText(track.Title);
             holder.m_artist.setText(track.Artist);
@@ -167,10 +162,10 @@ public class SongsFragment extends Fragment
 
                     // Update the playlist bound to the service
                     mediaService.setPlaylist(m_masterPlaylist);
-                    m_masterPlaylist.Position = position;
+                    m_masterPlaylist.setCursor(position);
 
                     // Play the selected track if it isn't the track that is already playing
-                    if (currentTrack != m_masterPlaylist.Tracks.get(position))
+                    if (currentTrack != m_masterPlaylist.getUnshuffledTrack(position))
                     {
                         mediaService.stop();
                         mediaService.play();
@@ -194,11 +189,7 @@ public class SongsFragment extends Fragment
         @Override
         public int getItemCount()
         {
-            if (m_playlist != null && m_playlist.Tracks != null)
-            {
-                return m_playlist.Tracks.size();
-            }
-            return 0;
+            return m_playlist.getNumTracks();
         }
     }
 }

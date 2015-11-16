@@ -43,8 +43,8 @@ public class LibraryActivity extends AppCompatActivity
 
         // Media service
         Intent intent = new Intent(this, MediaService.class);
+        startService(intent);
         bindService(intent, m_connection, Context.BIND_AUTO_CREATE);
-        //startService(intent);
 
         // Tabs
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -54,11 +54,29 @@ public class LibraryActivity extends AppCompatActivity
     @Override
     protected void onDestroy()
     {
-        unbindService(m_connection);
         Intent intent = new Intent(this, MediaService.class);
         stopService(intent);
 
         super.onDestroy();
+    }
+
+    @Override
+    protected void onRestart()
+    {
+        Intent intent = new Intent(this, MediaService.class);
+        bindService(intent, m_connection, Context.BIND_AUTO_CREATE);
+
+        super.onRestart();
+    }
+
+    @Override
+    protected void onStop()
+    {
+        if (isServiceBound())
+        {
+            unbindService(m_connection);
+        }
+        super.onStop();
     }
 
     @Override

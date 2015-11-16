@@ -122,7 +122,11 @@ public class AlbumActivity extends AppCompatActivity
             NavUtils.navigateUpFromSameTask(this);
             return true;
         }
-
+        else if (itemID == R.id.menu_library_player)
+        {
+            Intent intent = new Intent(this, PlayerActivity.class);
+            startActivity(intent);
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -176,11 +180,6 @@ public class AlbumActivity extends AppCompatActivity
             }
         }
 
-        public AudioTrack getValueAt(int position)
-        {
-            return m_playlist.Tracks.get(position);
-        }
-
         public RecyclerViewAdapter(Context context, Playlist playlist)
         {
             m_context = context;
@@ -197,7 +196,7 @@ public class AlbumActivity extends AppCompatActivity
         @Override
         public void onBindViewHolder(final ViewHolder holder, final int position)
         {
-            AudioTrack track = getValueAt(position);
+            AudioTrack track = m_playlist.getUnshuffledTrack(position);
 
             holder.m_title.setText(track.Title);
             holder.m_artist.setText(track.Artist);
@@ -219,10 +218,10 @@ public class AlbumActivity extends AppCompatActivity
 
                     // Update the playlist bound to the service
                     m_mediaService.setPlaylist(m_playlist);
-                    m_playlist.Position = position;
+                    m_playlist.setCursor(position);
 
                     // Play the selected track if it isn't the track that is already playing
-                    if (currentTrack != m_playlist.Tracks.get(position))
+                    if (currentTrack != m_playlist.getUnshuffledTrack(position))
                     {
                         m_mediaService.stop();
                         m_mediaService.play();
@@ -238,11 +237,7 @@ public class AlbumActivity extends AppCompatActivity
         @Override
         public int getItemCount()
         {
-            if (m_playlist != null && m_playlist.Tracks != null)
-            {
-                return m_playlist.Tracks.size();
-            }
-            return 0;
+            return m_playlist.getNumTracks();
         }
     }
 

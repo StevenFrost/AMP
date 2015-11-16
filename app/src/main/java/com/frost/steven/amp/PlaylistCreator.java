@@ -9,7 +9,6 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 
 public class PlaylistCreator extends AsyncTask<Void, AudioTrack, Void>
 {
@@ -50,10 +49,6 @@ public class PlaylistCreator extends AsyncTask<Void, AudioTrack, Void>
     @Override
     protected Void doInBackground(Void... params)
     {
-        m_playlist.Tracks = new ArrayList<>();
-        m_playlist.Position = 0;
-        m_playlist.Shuffle = false;
-
         Cursor cursor = m_contentResolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
             s_projection,
@@ -89,7 +84,7 @@ public class PlaylistCreator extends AsyncTask<Void, AudioTrack, Void>
             }
 
             AudioTrack track = new AudioTrack(title, artist, album, data, albumArtworkUri, duration);
-            m_playlist.Tracks.add(track);
+            m_playlist.addTrack(track);
             publishProgress(track);
         }
 
