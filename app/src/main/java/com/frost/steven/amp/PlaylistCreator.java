@@ -113,6 +113,11 @@ public class PlaylistCreator extends AsyncTask<Void, AudioTrack, Void>
         }
     }
 
+    public Playlist getPlaylist()
+    {
+        return m_playlist;
+    }
+
     public void setOnTrackInsertedListener(OnTrackInsertedListener listener)
     {
         m_onTrackInserted = listener;

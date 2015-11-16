@@ -154,6 +154,7 @@ public class PlayerActivity extends AppCompatActivity
         ((TextView)findViewById(R.id.element_song_artist)).setText(track.Artist);
         ((TextView)findViewById(R.id.element_song_album)).setText(track.Album);
         (findViewById(R.id.element_song_duration)).setVisibility(View.GONE);
+        (findViewById(R.id.element_song_menu)).setVisibility(View.GONE);
 
         // Static timecode views
         ((TextView)findViewById(R.id.player_track_duration)).setText(track.getFormattedDuration());

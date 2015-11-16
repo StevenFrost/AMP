@@ -1,12 +1,7 @@
 package com.frost.steven.amp;
 
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
 import android.support.design.widget.TabLayout;
-import android.support.v7.app.AppCompatActivity;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -17,11 +12,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class LibraryActivity extends AppCompatActivity
+public class LibraryActivity extends MediaServiceActivity
 {
     private BitmapProvider m_bitmapProvider;
-    private MediaService   m_mediaService;
-    private boolean        m_serviceBound = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -44,7 +37,6 @@ public class LibraryActivity extends AppCompatActivity
         // Media service
         Intent intent = new Intent(this, MediaService.class);
         startService(intent);
-        bindService(intent, m_connection, Context.BIND_AUTO_CREATE);
 
         // Tabs
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -58,25 +50,6 @@ public class LibraryActivity extends AppCompatActivity
         stopService(intent);
 
         super.onDestroy();
-    }
-
-    @Override
-    protected void onRestart()
-    {
-        Intent intent = new Intent(this, MediaService.class);
-        bindService(intent, m_connection, Context.BIND_AUTO_CREATE);
-
-        super.onRestart();
-    }
-
-    @Override
-    protected void onStop()
-    {
-        if (isServiceBound())
-        {
-            unbindService(m_connection);
-        }
-        super.onStop();
     }
 
     @Override
@@ -172,32 +145,4 @@ public class LibraryActivity extends AppCompatActivity
             return null;
         }
     }
-
-    public boolean isServiceBound()
-    {
-        return m_serviceBound;
-    }
-
-    public MediaService getMediaService()
-    {
-        return m_mediaService;
-    }
-
-    private ServiceConnection m_connection = new ServiceConnection()
-    {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service)
-        {
-            MediaService.MediaBinder binder = (MediaService.MediaBinder)service;
-
-            m_mediaService = binder.getService();
-            m_serviceBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name)
-        {
-            m_serviceBound = false;
-        }
-    };
 }

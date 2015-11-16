@@ -29,6 +29,7 @@
     <string name="cd_shuffle">Shuffle</string>
     <string name="cd_repeat">Repeat</string>
     <string name="cd_album_art">Album Art</string>
+    <string name="cd_track_options">Track Options</string>
 
     <!-- Placeholders -->
     <string name="placeholder_title">Title</string>
