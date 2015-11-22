@@ -35,6 +35,8 @@
     <string name="placeholder_title">Title</string>
     <string name="placeholder_artist">Artist</string>
     <string name="placeholder_album">Album</string>
+    <string name="placeholder_name">Name</string>
+    <string name="placeholder_date">dd/MM/yyyy</string>
 
     <!-- Activity action bar text -->
     <string name="activity_songs">Songs</string>

@@ -1,6 +1,7 @@
 package com.frost.steven.amp;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.design.widget.TabLayout;
 
 import android.support.v4.app.Fragment;
@@ -13,8 +14,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class LibraryActivity extends MediaServiceActivity
+        implements DBPlaylist.ListCreator.OnUnresolvedPlaylistsCompletedListener
 {
-    private BitmapProvider m_bitmapProvider;
+    private BitmapProvider                  m_bitmapProvider;
+    private ListenableArrayList<DBPlaylist> m_playlists;
+    private DBPlaylist.ListCreator          m_playlistsTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -31,6 +35,12 @@ public class LibraryActivity extends MediaServiceActivity
         ViewPager viewPager = (ViewPager)findViewById(R.id.container);
         viewPager.setAdapter(sectionsPagerAdapter);
 
+        // Playlists
+        m_playlists = new ListenableArrayList<>();
+        m_playlistsTask = new DBPlaylist.ListCreator(getContentResolver(), m_playlists);
+        m_playlistsTask.addOnUnresolvedPlaylistsCompletedListener(this);
+        m_playlistsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
         // Bitmap Provider
         m_bitmapProvider = new BitmapProvider(getResources(), getContentResolver());
 
@@ -41,6 +51,7 @@ public class LibraryActivity extends MediaServiceActivity
         // Tabs
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+
     }
 
     @Override
@@ -49,6 +60,10 @@ public class LibraryActivity extends MediaServiceActivity
         Intent intent = new Intent(this, MediaService.class);
         stopService(intent);
 
+        if (m_playlistsTask != null)
+        {
+            m_playlistsTask.cancel(true);
+        }
         super.onDestroy();
     }
 
@@ -77,9 +92,20 @@ public class LibraryActivity extends MediaServiceActivity
         moveTaskToBack(true);
     }
 
+    @Override
+    public void onUnresolvedPlaylistsCompleted()
+    {
+        m_playlistsTask = null;
+    }
+
     public BitmapProvider getBitmapProvider()
     {
         return m_bitmapProvider;
+    }
+
+    public ListenableArrayList<DBPlaylist> getPlaylists()
+    {
+        return m_playlists;
     }
 
     /**
@@ -112,11 +138,9 @@ public class LibraryActivity extends MediaServiceActivity
             case 1:
                 return ArtistsFragment.getInstance(getSupportFragmentManager());
             case 2:
-                return PlaylistsFragment.getInstance(getSupportFragmentManager());
+                return PlaylistsFragment.getInstance();
             case 3:
-                SongsFragment songsFragment = SongsFragment.getInstance();
-                songsFragment.setBitmapProvider(m_bitmapProvider);
-                return songsFragment;
+                return SongsFragment.getInstance();
             }
             return null;
         }

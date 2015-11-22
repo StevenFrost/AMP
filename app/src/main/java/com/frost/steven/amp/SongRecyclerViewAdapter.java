@@ -1,36 +1,47 @@
 package com.frost.steven.amp;
 
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.List;
+
 public class SongRecyclerViewAdapter
     extends RecyclerView.Adapter<SongRecyclerViewAdapter.ViewHolder>
-    implements PlaylistCreator.OnTrackInsertedListener, PlaylistCreator.OnPlaylistCompleteListener
+    implements Playlist.ListCreator.OnTrackInsertedListener, Playlist.ListCreator.OnPlaylistCompleteListener
 {
-    private MediaServiceActivity m_activity;
-    private BitmapProvider       m_bitmapProvider;
-    private Playlist             m_playlist;
-    private PlaylistCreator      m_playlistCreatorTask;
+    private MediaServiceActivity     m_activity;
+    private BitmapProvider           m_bitmapProvider;
+    private List<DBPlaylist> m_playlists;
+    private Playlist                 m_playlist;
+    private Playlist.ListCreator     m_playlistCreatorTask;
 
     private int m_tracksInserted = 0;
 
-    public SongRecyclerViewAdapter(MediaServiceActivity activity, @Nullable BitmapProvider bitmapProvider, PlaylistCreator playlistCreatorTask)
+    public SongRecyclerViewAdapter(
+            MediaServiceActivity activity,
+            @Nullable BitmapProvider bitmapProvider,
+            List<DBPlaylist> playlists,
+            Playlist.ListCreator playlistCreatorTask)
     {
         m_activity = activity;
         m_bitmapProvider = bitmapProvider;
+        m_playlists = playlists;
+
         m_playlistCreatorTask = playlistCreatorTask;
         m_playlist = m_playlistCreatorTask.getPlaylist();
-
         m_playlistCreatorTask.setOnTrackInsertedListener(this);
         m_playlistCreatorTask.setOnPlaylistCompleteListener(this);
         m_playlistCreatorTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -122,8 +133,36 @@ public class SongRecyclerViewAdapter
             public void onClick(View view)
             {
                 PopupMenu popup = new PopupMenu(view.getContext(), view);
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener()
+                {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item)
+                    {
+                        if (item.getItemId() == R.id.menu_song_add_to_playlist)
+                        {
+                            return true;
+                        }
+
+                        if (item.getItemId() == R.id.menu_song_new_playlist)
+                        {
+                            DialogFragment df = new NewPlaylistFragment();
+                            df.show(m_activity.getFragmentManager(), "dialog-new-playlist");
+                        }
+                        return true;
+                    }
+                });
                 MenuInflater inflater = popup.getMenuInflater();
                 inflater.inflate(R.menu.menu_song, popup.getMenu());
+
+                MenuItem playlistsMenuItem = popup.getMenu().getItem(0);
+                Menu playlistsSubMenu = playlistsMenuItem.getSubMenu();
+
+                for (int i = 0; i < m_playlists.size(); ++i)
+                {
+                    DBPlaylist playlist = m_playlists.get(i);
+                    playlistsSubMenu.add(Menu.NONE, i, Menu.NONE, playlist.Name);
+                }
+
                 popup.show();
             }
         });

@@ -9,12 +9,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.List;
+
 public class SongsFragment extends Fragment
 {
     private static final String FRAGMENT_ID = "com.frost.steven.amp.SongsFragment";
 
-    private BitmapProvider m_bitmapProvider;
-
+    private RecyclerView            m_recyclerView;
     private SongRecyclerViewAdapter m_songRecyclerViewAdapter = null;
 
     public static SongsFragment getInstance()
@@ -25,33 +26,30 @@ public class SongsFragment extends Fragment
     public SongsFragment() {}
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
+    public void onActivityCreated(Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
+        super.onActivityCreated(savedInstanceState);
+
+        BitmapProvider bitmapProvider = ((LibraryActivity)getActivity()).getBitmapProvider();
+        List<DBPlaylist> playlists = ((LibraryActivity)getActivity()).getPlaylists();
 
         Playlist playlist = new Playlist();
-        PlaylistCreator playlistCreator = new PlaylistCreator(
+        Playlist.ListCreator playlistCreator = new Playlist.ListCreator(
             getActivity().getContentResolver(),
             playlist,
             null,
             MediaStore.Audio.Media.TITLE
         );
-        m_songRecyclerViewAdapter = new SongRecyclerViewAdapter((MediaServiceActivity)getActivity(), m_bitmapProvider, playlistCreator);
+        m_songRecyclerViewAdapter = new SongRecyclerViewAdapter((MediaServiceActivity)getActivity(), bitmapProvider, playlists, playlistCreator);
+        m_recyclerView.setAdapter(m_songRecyclerViewAdapter);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        RecyclerView view = (RecyclerView)inflater.inflate(R.layout.fragment_songs, container, false);
+        m_recyclerView = (RecyclerView)inflater.inflate(R.layout.fragment_songs, container, false);
+        m_recyclerView.setLayoutManager(new LinearLayoutManager(m_recyclerView.getContext()));
 
-        view.setLayoutManager(new LinearLayoutManager(view.getContext()));
-        view.setAdapter(m_songRecyclerViewAdapter);
-
-        return view;
-    }
-
-    public void setBitmapProvider(BitmapProvider bitmapProvider)
-    {
-        m_bitmapProvider = bitmapProvider;
+        return m_recyclerView;
     }
 }

@@ -2,6 +2,7 @@ package com.frost.steven.amp;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
@@ -15,9 +16,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
-public class AlbumActivity extends MediaServiceActivity
+import java.util.ArrayList;
+import java.util.List;
+
+public class AlbumActivity extends MediaServiceActivity implements DBPlaylist.ListCreator.OnUnresolvedPlaylistsCompletedListener
 {
-    private Album m_album;
+    private Album                          m_album;
+    private List<DBPlaylist>       m_playlists;
+    private DBPlaylist.ListCreator m_playlistsTask;
 
     private SongViewAdapter m_songRecyclerViewAdapter = null;
 
@@ -37,14 +43,20 @@ public class AlbumActivity extends MediaServiceActivity
             setTitle(m_album.Title);
         }
 
+        // Playlists
+        m_playlists = new ArrayList<>();
+        m_playlistsTask = new DBPlaylist.ListCreator(getContentResolver(), m_playlists);
+        m_playlistsTask.addOnUnresolvedPlaylistsCompletedListener(this);
+        m_playlistsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
         Playlist paylist = new Playlist();
-        PlaylistCreator playlistCreator = new PlaylistCreator(
+        Playlist.ListCreator playlistCreator = new Playlist.ListCreator(
             getContentResolver(),
             paylist,
             new String[] { MediaStore.Audio.Media.ALBUM_ID + " == " + m_album.AlbumID.toString() },
             MediaStore.Audio.Media.TRACK + " ASC"
         );
-        m_songRecyclerViewAdapter = new SongViewAdapter(this, null, playlistCreator);
+        m_songRecyclerViewAdapter = new SongViewAdapter(this, null, m_playlists, playlistCreator);
 
         RecyclerView view = (RecyclerView)findViewById(R.id.content_album_recyclerview);
         view.setLayoutManager(new LinearLayoutManager(view.getContext()));
@@ -96,11 +108,17 @@ public class AlbumActivity extends MediaServiceActivity
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onUnresolvedPlaylistsCompleted()
+    {
+        m_playlistsTask = null;
+    }
+
     private class SongViewAdapter extends SongRecyclerViewAdapter
     {
-        public SongViewAdapter(MediaServiceActivity activity, @Nullable BitmapProvider bitmapProvider, PlaylistCreator playlistCreatorTask)
+        public SongViewAdapter(MediaServiceActivity activity, @Nullable BitmapProvider bitmapProvider, List<DBPlaylist> playlists, Playlist.ListCreator playlistCreatorTask)
         {
-            super(activity, bitmapProvider, playlistCreatorTask);
+            super(activity, bitmapProvider, playlists, playlistCreatorTask);
         }
 
         @Override

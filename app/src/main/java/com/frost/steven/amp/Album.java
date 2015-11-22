@@ -114,8 +114,15 @@ public class Album implements Parcelable
                 s_orderBy
             );
 
+            if (cursor == null) { return null; }
+
+            // Column indices
+            final int titleIdx   = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
+            final int artistIdx  = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
+            final int albumIdIdx = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
+
             String curTitle = null;
-            while (cursor != null && cursor.moveToNext())
+            while (cursor.moveToNext())
             {
                 if (isCancelled()) { break; }
 
@@ -128,9 +135,9 @@ public class Album implements Parcelable
                     continue;
                 }
 
-                String title  = cursor.getString(0);
-                String artist = cursor.getString(1);
-                long albumID  = cursor.getLong(2);
+                String title  = cursor.getString(titleIdx);
+                String artist = cursor.getString(artistIdx);
+                long albumID  = cursor.getLong(albumIdIdx);
 
                 Uri artworkUri = Uri.parse("content://media/external/audio/albumart");
                 Uri albumArtworkUri = ContentUris.withAppendedId(artworkUri, albumID);
@@ -152,10 +159,7 @@ public class Album implements Parcelable
                 publishProgress(album);
             }
 
-            if (cursor != null)
-            {
-                cursor.close();
-            }
+            cursor.close();
             return null;
         }
 

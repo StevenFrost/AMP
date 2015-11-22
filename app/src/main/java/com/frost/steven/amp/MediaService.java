@@ -48,7 +48,7 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
     private final IBinder       m_binder = new MediaBinder();
     private MediaPlayer         m_player = null;
     private NotificationManager m_notificationManager;
-
+    private BroadcastReceiver   m_broadcastReceiver;
     enum PlayerState
     {
         Paused,
@@ -77,7 +77,9 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         intentFilter.addAction(ACTION_PREVIOUS);
         intentFilter.addAction(ACTION_PLAY_PAUSE);
         intentFilter.addAction(ACTION_NEXT);
-        registerReceiver(new NotificationBroadcastReceiver(), intentFilter);
+
+        m_broadcastReceiver = new NotificationBroadcastReceiver();
+        registerReceiver(m_broadcastReceiver, intentFilter);
     }
 
     @Override
@@ -88,6 +90,8 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
 
         m_player.reset();
         m_player.release();
+
+        unregisterReceiver(m_broadcastReceiver);
 
         super.onDestroy();
     }
