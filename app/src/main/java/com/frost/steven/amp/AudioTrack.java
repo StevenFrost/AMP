@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class AudioTrack
 {
+    public long   ID;       /** Track ID                       */
     public String Title;    /** Track title                    */
     public String Artist;   /** Primary artist                 */
     public String Album;    /** Album name                     */
@@ -18,24 +19,13 @@ public class AudioTrack
     public Uri    CoverArt; /** Cover art graphic              */
     public int    Duration; /** Track duration in milliseconds */
 
-    public AudioTrack()
+    public AudioTrack(long id, String title, String artist, String album, String data, Uri coverArt, int duration)
     {
-        super();
-    }
-
-    public AudioTrack(String title, String artist, String album)
-    {
-        Title = title;
-        Artist = artist;
-        Album = album;
-    }
-
-    public AudioTrack(String title, String artist, String album, String data, Uri coverArt, int duration)
-    {
-        Title = title;
-        Artist = artist;
-        Album = album;
-        Data = data;
+        ID       = id;
+        Title    = title;
+        Artist   = artist;
+        Album    = album;
+        Data     = data;
         CoverArt = coverArt;
         Duration = duration;
     }

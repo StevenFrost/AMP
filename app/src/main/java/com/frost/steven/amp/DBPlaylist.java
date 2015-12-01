@@ -1,7 +1,9 @@
 package com.frost.steven.amp;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -53,24 +55,89 @@ public class DBPlaylist implements Parcelable
         dest.writeLong(DateAdded);
     }
 
+    public AddTrackTask addTrack(ContentResolver contentResolver, long trackIdx)
+    {
+        AddTrackTask task = new AddTrackTask(contentResolver, trackIdx);
+        task.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+        return task;
+    }
+
+    public RemoveTrackTask removeTrack(ContentResolver contentResolver, long trackIdx)
+    {
+        RemoveTrackTask task = new RemoveTrackTask(contentResolver, trackIdx);
+        task.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+        return task;
+    }
+
     public String getFormattedDateAdded()
     {
         SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy", Locale.UK);
         return date.format(new Date(DateAdded));
     }
 
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator()
+    public class AddTrackTask extends AsyncTask<Void, Void, Void>
     {
-        public DBPlaylist createFromParcel(Parcel parcel)
+        private ContentResolver m_contentResolver;
+        private long            m_trackIdx;
+
+        public AddTrackTask(ContentResolver contentResolver, long trackIdx)
         {
-            return new DBPlaylist(parcel);
+            m_contentResolver = contentResolver;
+            m_trackIdx = trackIdx;
         }
 
-        public DBPlaylist[] newArray(int size)
+        @Override
+        protected Void doInBackground(Void... params)
         {
-            return new DBPlaylist[size];
+            Uri uri = MediaStore.Audio.Playlists.Members.getContentUri("external", Id);
+            Cursor cursor = m_contentResolver.query(
+                uri,
+                new String[] { MediaStore.Audio.Playlists.Members._ID, MediaStore.Audio.Playlists.Members.PLAY_ORDER },
+                null,
+                null,
+                MediaStore.Audio.Playlists.Members.PLAY_ORDER + " ASC"
+            );
+
+            int nextPlayOrder = 1;
+            if (cursor != null)
+            {
+                if (cursor.moveToLast())
+                {
+                    final int playOrderIdx = cursor.getColumnIndex(MediaStore.Audio.Playlists.Members.PLAY_ORDER);
+                    nextPlayOrder = (cursor.getInt(playOrderIdx)) + 1;
+                }
+                cursor.close();
+            }
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.Audio.Playlists.Members.AUDIO_ID, m_trackIdx);
+            contentValues.put(MediaStore.Audio.Playlists.Members.PLAY_ORDER, nextPlayOrder);
+
+            m_contentResolver.insert(uri, contentValues);
+            return null;
         }
-    };
+    }
+
+    public class RemoveTrackTask extends AsyncTask<Void, Void, Void>
+    {
+        private ContentResolver m_contentResolver;
+        private long            m_trackIdx;
+
+        public RemoveTrackTask(ContentResolver contentResolver, long trackIdx)
+        {
+            m_contentResolver = contentResolver;
+            m_trackIdx = trackIdx;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            Uri uri = MediaStore.Audio.Playlists.Members.getContentUri("external", Id);
+            m_contentResolver.delete(uri, "_id=" + m_trackIdx, null);
+
+            return null;
+        }
+    }
 
     public static class ListCreator extends AsyncTask<Void, DBPlaylist, Void>
     {
@@ -80,9 +147,9 @@ public class DBPlaylist implements Parcelable
             MediaStore.Audio.Playlists.DATE_ADDED   /** Creation date */
         };
 
-        private ContentResolver          m_contentResolver;
+        private ContentResolver  m_contentResolver;
         private List<DBPlaylist> m_playlists;
-        private boolean                  m_complete;
+        private boolean          m_complete;
 
         private List<OnUnresolvedPlaylistsCompletedListener> m_onPlaylistsCompletedListeners;
 
@@ -155,4 +222,17 @@ public class DBPlaylist implements Parcelable
             void onUnresolvedPlaylistsCompleted();
         }
     }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator()
+    {
+        public DBPlaylist createFromParcel(Parcel parcel)
+        {
+            return new DBPlaylist(parcel);
+        }
+
+        public DBPlaylist[] newArray(int size)
+        {
+            return new DBPlaylist[size];
+        }
+    };
 }

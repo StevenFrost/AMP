@@ -31,7 +31,7 @@ public class SongsFragment extends Fragment
         super.onActivityCreated(savedInstanceState);
 
         BitmapProvider bitmapProvider = ((LibraryActivity)getActivity()).getBitmapProvider();
-        List<DBPlaylist> playlists = ((LibraryActivity)getActivity()).getPlaylists();
+        List<DBPlaylist> playlists = ((LibraryActivity)getActivity()).getDBPlaylistManager().getPlaylists();
 
         Playlist playlist = new Playlist();
         Playlist.ListCreator playlistCreator = new Playlist.ListCreator(

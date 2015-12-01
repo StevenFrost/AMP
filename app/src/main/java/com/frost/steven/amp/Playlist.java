@@ -163,6 +163,7 @@ public class Playlist
         private static final String   s_extVolume = "external";
         private static final String   s_selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         private static final String[] s_projection = {
+            MediaStore.Audio.Media._ID,         /** Track ID                 */
             MediaStore.Audio.Media.ALBUM_ID,    /** Cover art ID             */
             MediaStore.Audio.Media.TITLE,       /** Song title               */
             MediaStore.Audio.Media.ARTIST,      /** Primary artist           */
@@ -250,6 +251,7 @@ public class Playlist
             if (cursor == null) { return null; }
 
             // Common column indices
+            final int idIdx       = cursor.getColumnIndex(MediaStore.Audio.Media._ID);
             final int albumIdIdx  = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
             final int titleIdx    = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
             final int artistIdx   = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
@@ -261,6 +263,7 @@ public class Playlist
             {
                 if (isCancelled()) { break; }
 
+                long id       = cursor.getLong(idIdx);
                 long albumId  = cursor.getLong(albumIdIdx);
                 String title  = cursor.getString(titleIdx);
                 String artist = cursor.getString(artistIdx);
@@ -283,7 +286,7 @@ public class Playlist
                     albumArtworkUri = null;
                 }
 
-                AudioTrack track = new AudioTrack(title, artist, album, data, albumArtworkUri, duration);
+                AudioTrack track = new AudioTrack(id, title, artist, album, data, albumArtworkUri, duration);
                 m_playlist.addTrack(track);
                 publishProgress(track);
             }

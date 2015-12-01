@@ -3,6 +3,7 @@ package com.frost.steven.amp;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -24,7 +25,7 @@ public class SongRecyclerViewAdapter
 {
     private MediaServiceActivity     m_activity;
     private BitmapProvider           m_bitmapProvider;
-    private List<DBPlaylist> m_playlists;
+    private List<DBPlaylist>         m_playlists;
     private Playlist                 m_playlist;
     private Playlist.ListCreator     m_playlistCreatorTask;
 
@@ -67,7 +68,7 @@ public class SongRecyclerViewAdapter
         ++m_tracksInserted;
 
         // TODO: Adjust this for the current number of visible elements on screen
-        if (m_tracksInserted % 50 == 0)
+        if (m_tracksInserted % 20 == 0)
         {
             notifyDataSetChanged();
         }
@@ -76,7 +77,7 @@ public class SongRecyclerViewAdapter
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position)
     {
-        AudioTrack track = m_playlist.getUnshuffledTrack(position);
+        final AudioTrack track = m_playlist.getUnshuffledTrack(position);
 
         // Title, artist, album and duration text fields
         holder.m_title.setText(track.Title);
@@ -145,7 +146,12 @@ public class SongRecyclerViewAdapter
 
                         if (item.getItemId() == R.id.menu_song_new_playlist)
                         {
+                            Bundle bundle = new Bundle();
+                            bundle.putLong("trackID", track.ID);
+
                             DialogFragment df = new NewPlaylistFragment();
+                            df.setArguments(bundle);
+
                             df.show(m_activity.getFragmentManager(), "dialog-new-playlist");
                         }
                         return true;

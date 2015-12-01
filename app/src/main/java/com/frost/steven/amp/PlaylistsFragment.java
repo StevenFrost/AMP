@@ -1,10 +1,14 @@
 package com.frost.steven.amp;
 
+import android.app.DialogFragment;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -32,7 +36,7 @@ public class PlaylistsFragment extends Fragment
         super.onActivityCreated(savedInstanceState);
 
         LibraryActivity activity = (LibraryActivity)getActivity();
-        ListenableArrayList<DBPlaylist> playlists = activity.getPlaylists();
+        ListenableArrayList<DBPlaylist> playlists = activity.getDBPlaylistManager().getPlaylists();
 
         m_recyclerViewAdapter = new RecyclerViewAdapter(playlists);
         playlists.attachListener(m_recyclerViewAdapter);
@@ -80,7 +84,7 @@ public class PlaylistsFragment extends Fragment
         @Override
         public void onBindViewHolder(final ViewHolder holder, final int position)
         {
-            DBPlaylist playlist = getValueAt(position);
+            final DBPlaylist playlist = getValueAt(position);
 
             holder.m_name.setText(playlist.Name);
             holder.m_date.setText(playlist.getFormattedDateAdded());
@@ -91,6 +95,43 @@ public class PlaylistsFragment extends Fragment
                 public void onClick(View view)
                 {
                     Toast.makeText(getActivity(), "Time to party!", Toast.LENGTH_LONG).show();
+                }
+            });
+
+            holder.m_menu.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View view)
+                {
+                    PopupMenu popup = new PopupMenu(view.getContext(), view);
+                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener()
+                    {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item)
+                        {
+                            final int itemId = item.getItemId();
+                            if (itemId == R.id.menu_playlist_edit)
+                            {
+                                Bundle bundle = new Bundle();
+                                bundle.putInt("playlistPosition", position);
+                                bundle.putString("playlistName", playlist.Name);
+
+                                DialogFragment df = new EditPlaylistFragment();
+                                df.setArguments(bundle);
+
+                                df.show(getActivity().getFragmentManager(), "dialog-edit-playlist");
+                                return true;
+                            }
+                            else if (itemId == R.id.menu_playlist_remove)
+                            {
+                                return true;
+                            }
+                            return true;
+                        }
+                    });
+                    MenuInflater inflater = popup.getMenuInflater();
+                    inflater.inflate(R.menu.menu_playlist, popup.getMenu());
+                    popup.show();
                 }
             });
         }

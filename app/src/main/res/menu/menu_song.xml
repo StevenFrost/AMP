@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:title="Add to Playlist" android:id="@+id/menu_song_add_to_playlist">
+    <item android:id="@+id/menu_song_add_to_playlist" android:title="@string/menu_add_to_playlist">
         <menu>
-            <item android:title="Create New Playlist" android:id="@+id/menu_song_new_playlist"/>
+            <item android:id="@+id/menu_song_new_playlist" android:title="@string/menu_new_playlist"/>
         </menu>
     </item>
 </menu>

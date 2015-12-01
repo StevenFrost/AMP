@@ -13,12 +13,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class LibraryActivity extends MediaServiceActivity
-        implements DBPlaylist.ListCreator.OnUnresolvedPlaylistsCompletedListener
+public class LibraryActivity extends MediaServiceActivity implements DBPlaylistManager.Container
 {
-    private BitmapProvider                  m_bitmapProvider;
-    private ListenableArrayList<DBPlaylist> m_playlists;
-    private DBPlaylist.ListCreator          m_playlistsTask;
+    private BitmapProvider    m_bitmapProvider;
+    private DBPlaylistManager m_playlistManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -35,11 +33,12 @@ public class LibraryActivity extends MediaServiceActivity
         ViewPager viewPager = (ViewPager)findViewById(R.id.container);
         viewPager.setAdapter(sectionsPagerAdapter);
 
+        // Playlist Manager
+        m_playlistManager = new DBPlaylistManager(getContentResolver());
+
         // Playlists
-        m_playlists = new ListenableArrayList<>();
-        m_playlistsTask = new DBPlaylist.ListCreator(getContentResolver(), m_playlists);
-        m_playlistsTask.addOnUnresolvedPlaylistsCompletedListener(this);
-        m_playlistsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        DBPlaylist.ListCreator playlistsTask = new DBPlaylist.ListCreator(getContentResolver(), m_playlistManager.getPlaylists());
+        playlistsTask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
 
         // Bitmap Provider
         m_bitmapProvider = new BitmapProvider(getResources(), getContentResolver());
@@ -51,7 +50,6 @@ public class LibraryActivity extends MediaServiceActivity
         // Tabs
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
-
     }
 
     @Override
@@ -60,10 +58,6 @@ public class LibraryActivity extends MediaServiceActivity
         Intent intent = new Intent(this, MediaService.class);
         stopService(intent);
 
-        if (m_playlistsTask != null)
-        {
-            m_playlistsTask.cancel(true);
-        }
         super.onDestroy();
     }
 
@@ -93,19 +87,14 @@ public class LibraryActivity extends MediaServiceActivity
     }
 
     @Override
-    public void onUnresolvedPlaylistsCompleted()
+    public DBPlaylistManager getDBPlaylistManager()
     {
-        m_playlistsTask = null;
+        return m_playlistManager;
     }
 
     public BitmapProvider getBitmapProvider()
     {
         return m_bitmapProvider;
-    }
-
-    public ListenableArrayList<DBPlaylist> getPlaylists()
-    {
-        return m_playlists;
     }
 
     /**
@@ -115,7 +104,7 @@ public class LibraryActivity extends MediaServiceActivity
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter
     {
-        private static final int NUM_PAGES = 4;
+        private static final int NUM_PAGES = 3;
 
         public SectionsPagerAdapter(FragmentManager fragmentManager)
         {
@@ -136,10 +125,8 @@ public class LibraryActivity extends MediaServiceActivity
             case 0:
                 return AlbumsFragment.getInstance();
             case 1:
-                return ArtistsFragment.getInstance(getSupportFragmentManager());
-            case 2:
                 return PlaylistsFragment.getInstance();
-            case 3:
+            case 2:
                 return SongsFragment.getInstance();
             }
             return null;
@@ -160,10 +147,8 @@ public class LibraryActivity extends MediaServiceActivity
             case 0:
                 return "Albums";
             case 1:
-                return "Artists";
-            case 2:
                 return "Playlists";
-            case 3:
+            case 2:
                 return "Songs";
             }
             return null;

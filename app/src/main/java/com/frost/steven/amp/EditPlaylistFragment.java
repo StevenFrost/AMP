@@ -9,42 +9,42 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-public class NewPlaylistFragment extends DialogFragment
+public class EditPlaylistFragment extends DialogFragment
 {
-    long m_trackId;
-
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
         Bundle bundle = getArguments();
-        m_trackId = bundle.getLong("trackID");
+        final int playlistPosition = bundle.getInt("playlistPosition");
+        final String playlistName = bundle.getString("playlistName");
 
-        final DBPlaylistManager.Container container = (DBPlaylistManager.Container)getActivity();
+        final DBPlaylistManager.Container container = (DBPlaylistManager.Container) getActivity();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
         final View view = inflater.inflate(R.layout.fragment_playlist_details, null);
+        final TextView textView = (TextView) (view.findViewById(R.id.playlist_details_name));
+        textView.setText(playlistName);
 
-        builder.setTitle("New Playlist");
+        builder.setTitle("Edit Playlist");
         builder.setView(view);
-        builder.setPositiveButton("Create", new DialogInterface.OnClickListener()
+        builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener()
         {
             @Override
             public void onClick(DialogInterface dialog, int id)
             {
                 DBPlaylistManager playlistManager = container.getDBPlaylistManager();
-                TextView textView = (TextView)(view.findViewById(R.id.playlist_details_name));
 
                 // TODO: Validate & sanitize the input
-                playlistManager.create(textView.getText().toString(), m_trackId);
+                playlistManager.edit(playlistPosition, textView.getText().toString());
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
         {
             public void onClick(DialogInterface dialog, int id)
             {
-                NewPlaylistFragment.this.getDialog().cancel();
+                EditPlaylistFragment.this.getDialog().cancel();
             }
         });
         return builder.create();
