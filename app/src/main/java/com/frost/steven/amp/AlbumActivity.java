@@ -16,55 +16,54 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class AlbumActivity extends MediaServiceActivity implements DBPlaylist.ListCreator.OnUnresolvedPlaylistsCompletedListener
+public class AlbumActivity extends MediaServiceActivity
 {
-    private List<DBPlaylist>       m_playlists;
-    private DBPlaylist.ListCreator m_playlistsTask;
+    private Album m_album;
+
+    private DBPlaylistManager    m_playlistManager;
+    private Playlist.ListCreator m_playlistTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_album);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // Bundle album
         Bundle bundle = getIntent().getExtras();
-        Album album = (Album)bundle.get(AlbumsFragment.BUNDLE_PARCEL_ALBUM);
+        m_album = (Album)bundle.get(AlbumsFragment.BUNDLE_PARCEL_ALBUM);
 
-        if (album != null)
+        if (m_album == null)
         {
-            setTitle(album.Title);
+            finish();
+            return;
         }
+        setTitle(m_album.Title);
 
-        // Playlists
-        m_playlists = new ArrayList<>();
-        m_playlistsTask = new DBPlaylist.ListCreator(getContentResolver(), m_playlists);
-        m_playlistsTask.addOnUnresolvedPlaylistsCompletedListener(this);
-        m_playlistsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        initActivityState();
 
-        Playlist paylist = new Playlist();
-        Playlist.ListCreator playlistCreator = new Playlist.ListCreator(
-            getContentResolver(),
-            paylist,
-            new String[] { MediaStore.Audio.Media.ALBUM_ID + " == " + album.AlbumID.toString() },
-            MediaStore.Audio.Media.TRACK + " ASC"
+        // Inflate the recycler view
+        SongViewAdapter songRecyclerViewAdapter = new SongViewAdapter(
+            this,
+            null,
+            m_playlistManager.getPlaylists(),
+            m_playlistTask
         );
-        playlistCreator.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
-        SongViewAdapter songRecyclerViewAdapter = new SongViewAdapter(this, null, m_playlists, playlistCreator);
         RecyclerView view = (RecyclerView)findViewById(R.id.content_album_recyclerview);
         view.setLayoutManager(new LinearLayoutManager(view.getContext()));
         view.setAdapter(songRecyclerViewAdapter);
 
-        if (album.Artwork != null)
+        // TODO: Make this async
+        if (m_album.Artwork != null)
         {
             try
             {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), album.Artwork);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), m_album.Artwork);
                 Bitmap albumArt = Bitmap.createScaledBitmap(bitmap, 512, 512, true);
 
                 ((ImageView)findViewById(R.id.activity_album_artwork)).setImageBitmap(albumArt);
@@ -100,6 +99,10 @@ public class AlbumActivity extends MediaServiceActivity implements DBPlaylist.Li
         }
         else if (itemID == R.id.menu_library_player)
         {
+            if (getMediaService().getPlayerState() == MediaService.PlayerState.Stopped)
+            {
+                getMediaService().play();
+            }
             Intent intent = new Intent(this, PlayerActivity.class);
             startActivity(intent);
         }
@@ -107,9 +110,33 @@ public class AlbumActivity extends MediaServiceActivity implements DBPlaylist.Li
     }
 
     @Override
-    public void onUnresolvedPlaylistsCompleted()
+    protected void onMediaServiceConnected()
     {
-        m_playlistsTask = null;
+        MediaService mediaService = getMediaService();
+        if (mediaService.getPlayerState() == MediaService.PlayerState.Stopped)
+        {
+            mediaService.setPlaylist(m_playlistTask.getPlaylist());
+        }
+    }
+
+    private void initActivityState()
+    {
+        // Playlist Manager
+        m_playlistManager = new DBPlaylistManager(getContentResolver());
+
+        // MediaStore Playlists
+        DBPlaylist.ListCreator playlistsTask = new DBPlaylist.ListCreator(getContentResolver(), m_playlistManager.getPlaylists());
+        playlistsTask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+
+        // Album playlist
+        Playlist playlist = new Playlist();
+        m_playlistTask = new Playlist.ListCreator(
+            getContentResolver(),
+            playlist,
+            new String[] { MediaStore.Audio.Media.ALBUM_ID + " == " + m_album.AlbumID },
+            MediaStore.Audio.Media.TRACK + " ASC"
+        );
+        m_playlistTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     private class SongViewAdapter extends SongRecyclerViewAdapter

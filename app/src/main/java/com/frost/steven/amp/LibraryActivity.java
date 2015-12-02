@@ -75,6 +75,10 @@ public class LibraryActivity extends MediaServiceActivity implements DBPlaylistM
         int itemId = item.getItemId();
         if (itemId == R.id.menu_library_player)
         {
+            if (getMediaService().getPlayerState() == MediaService.PlayerState.Stopped)
+            {
+                getMediaService().play();
+            }
             Intent intent = new Intent(this, PlayerActivity.class);
             startActivity(intent);
         }

@@ -160,6 +160,9 @@ public class PlayerActivity extends AppCompatActivity
         ((TextView)findViewById(R.id.player_track_duration)).setText(track.getFormattedDuration());
         ((SeekBar)findViewById(R.id.player_seek_bar)).setMax(track.Duration);
 
+        // Play/Pause button
+        updatePlayButtonImage();
+
         m_handler.post(m_updateTimecodeViewRunnable);
     }
 
@@ -185,14 +188,14 @@ public class PlayerActivity extends AppCompatActivity
         {
         case Playing:
             m_service.pause();
-            ib.setImageResource(R.drawable.player_play);
             break;
         case Paused:
         case Stopped:
             m_service.play();
-            ib.setImageResource(R.drawable.player_pause);
             break;
         }
+
+        updatePlayButtonImage();
     }
 
     public void onNextButtonClick(View view)
@@ -226,6 +229,22 @@ public class PlayerActivity extends AppCompatActivity
         }
         m_repeat = !m_repeat;
         m_service.setRepeat(m_repeat);
+    }
+
+    private void updatePlayButtonImage()
+    {
+        ImageButton ib = ((ImageButton)findViewById(R.id.player_play_button));
+
+        switch(m_service.getPlayerState())
+        {
+        case Playing:
+            ib.setImageResource(R.drawable.player_pause);
+            break;
+        case Paused:
+        case Stopped:
+            ib.setImageResource(R.drawable.player_play);
+            break;
+        }
     }
 
     private void updateTrackPositionInterface()

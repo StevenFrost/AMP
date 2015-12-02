@@ -49,6 +49,7 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
     private MediaPlayer         m_player = null;
     private NotificationManager m_notificationManager;
     private BroadcastReceiver   m_broadcastReceiver;
+
     enum PlayerState
     {
         Paused,
