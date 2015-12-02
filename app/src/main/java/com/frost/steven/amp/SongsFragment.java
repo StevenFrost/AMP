@@ -15,33 +15,11 @@ public class SongsFragment extends Fragment
 {
     private static final String FRAGMENT_ID = "com.frost.steven.amp.SongsFragment";
 
-    private RecyclerView            m_recyclerView;
-    private SongRecyclerViewAdapter m_songRecyclerViewAdapter = null;
+    private RecyclerView m_recyclerView;
 
     public static SongsFragment getInstance()
     {
         return new SongsFragment();
-    }
-
-    public SongsFragment() {}
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState)
-    {
-        super.onActivityCreated(savedInstanceState);
-
-        BitmapProvider bitmapProvider = ((LibraryActivity)getActivity()).getBitmapProvider();
-        List<DBPlaylist> playlists = ((LibraryActivity)getActivity()).getDBPlaylistManager().getPlaylists();
-
-        Playlist playlist = new Playlist();
-        Playlist.ListCreator playlistCreator = new Playlist.ListCreator(
-            getActivity().getContentResolver(),
-            playlist,
-            null,
-            MediaStore.Audio.Media.TITLE
-        );
-        m_songRecyclerViewAdapter = new SongRecyclerViewAdapter((MediaServiceActivity)getActivity(), bitmapProvider, playlists, playlistCreator);
-        m_recyclerView.setAdapter(m_songRecyclerViewAdapter);
     }
 
     @Override
@@ -51,5 +29,35 @@ public class SongsFragment extends Fragment
         m_recyclerView.setLayoutManager(new LinearLayoutManager(m_recyclerView.getContext()));
 
         return m_recyclerView;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState)
+    {
+        super.onActivityCreated(savedInstanceState);
+
+        LibraryActivity activity = (LibraryActivity)getActivity();
+
+        BitmapProvider bitmapProvider = activity.getBitmapProvider();
+        DBPlaylistManager playlistManager = activity.getDBPlaylistManager();
+        List<DBPlaylist> playlists = playlistManager.getPlaylists();
+
+        // Create the internal playlist, ordered by title ascending
+        Playlist playlist = new Playlist();
+        Playlist.ListCreator playlistCreator = new Playlist.ListCreator(
+            activity.getContentResolver(),
+            playlist,
+            null,
+            MediaStore.Audio.Media.TITLE
+        );
+
+        // Attach the song recycler view adapter
+        SongRecyclerViewAdapter songRecyclerViewAdapter = new SongRecyclerViewAdapter(
+            (MediaServiceActivity)getActivity(),
+            bitmapProvider,
+            playlists,
+            playlistCreator
+        );
+        m_recyclerView.setAdapter(songRecyclerViewAdapter);
     }
 }

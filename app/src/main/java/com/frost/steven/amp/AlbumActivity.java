@@ -21,11 +21,8 @@ import java.util.List;
 
 public class AlbumActivity extends MediaServiceActivity implements DBPlaylist.ListCreator.OnUnresolvedPlaylistsCompletedListener
 {
-    private Album                          m_album;
     private List<DBPlaylist>       m_playlists;
     private DBPlaylist.ListCreator m_playlistsTask;
-
-    private SongViewAdapter m_songRecyclerViewAdapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -36,11 +33,11 @@ public class AlbumActivity extends MediaServiceActivity implements DBPlaylist.Li
         setSupportActionBar(toolbar);
 
         Bundle bundle = getIntent().getExtras();
-        m_album = (Album)bundle.get(AlbumsFragment.BUNDLE_PARCEL_ALBUM);
+        Album album = (Album)bundle.get(AlbumsFragment.BUNDLE_PARCEL_ALBUM);
 
-        if (m_album != null)
+        if (album != null)
         {
-            setTitle(m_album.Title);
+            setTitle(album.Title);
         }
 
         // Playlists
@@ -53,20 +50,20 @@ public class AlbumActivity extends MediaServiceActivity implements DBPlaylist.Li
         Playlist.ListCreator playlistCreator = new Playlist.ListCreator(
             getContentResolver(),
             paylist,
-            new String[] { MediaStore.Audio.Media.ALBUM_ID + " == " + m_album.AlbumID.toString() },
+            new String[] { MediaStore.Audio.Media.ALBUM_ID + " == " + album.AlbumID.toString() },
             MediaStore.Audio.Media.TRACK + " ASC"
         );
-        m_songRecyclerViewAdapter = new SongViewAdapter(this, null, m_playlists, playlistCreator);
 
+        SongViewAdapter songRecyclerViewAdapter = new SongViewAdapter(this, null, m_playlists, playlistCreator);
         RecyclerView view = (RecyclerView)findViewById(R.id.content_album_recyclerview);
         view.setLayoutManager(new LinearLayoutManager(view.getContext()));
-        view.setAdapter(m_songRecyclerViewAdapter);
+        view.setAdapter(songRecyclerViewAdapter);
 
-        if (m_album.Artwork != null)
+        if (album.Artwork != null)
         {
             try
             {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), m_album.Artwork);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), album.Artwork);
                 Bitmap albumArt = Bitmap.createScaledBitmap(bitmap, 512, 512, true);
 
                 ((ImageView)findViewById(R.id.activity_album_artwork)).setImageBitmap(albumArt);

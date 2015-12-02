@@ -1,6 +1,7 @@
 package com.frost.steven.amp;
 
 import android.app.DialogFragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,8 +15,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.List;
 
 public class PlaylistsFragment extends Fragment
 {
@@ -36,10 +35,10 @@ public class PlaylistsFragment extends Fragment
         super.onActivityCreated(savedInstanceState);
 
         LibraryActivity activity = (LibraryActivity)getActivity();
-        ListenableArrayList<DBPlaylist> playlists = activity.getDBPlaylistManager().getPlaylists();
+        DBPlaylistManager playlistManager = activity.getDBPlaylistManager();
 
-        m_recyclerViewAdapter = new RecyclerViewAdapter(playlists);
-        playlists.attachListener(m_recyclerViewAdapter);
+        m_recyclerViewAdapter = new RecyclerViewAdapter(playlistManager);
+        playlistManager.getPlaylists().attachListener(m_recyclerViewAdapter);
         m_recyclerView.setAdapter(m_recyclerViewAdapter);
     }
 
@@ -56,11 +55,11 @@ public class PlaylistsFragment extends Fragment
             extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>
             implements ListenableArrayList.OnPlaylistCollectionChangedListener
     {
-        private List<DBPlaylist> m_playlists;
+        private DBPlaylistManager m_playlistManager;
 
-        public RecyclerViewAdapter(List<DBPlaylist> playlists)
+        public RecyclerViewAdapter(DBPlaylistManager playlistManager)
         {
-            m_playlists = playlists;
+            m_playlistManager = playlistManager;
         }
 
         @Override
@@ -71,7 +70,7 @@ public class PlaylistsFragment extends Fragment
 
         public DBPlaylist getValueAt(int position)
         {
-            return m_playlists.get(position);
+            return m_playlistManager.getPlaylistAt(position);
         }
 
         @Override
@@ -94,7 +93,11 @@ public class PlaylistsFragment extends Fragment
                 @Override
                 public void onClick(View view)
                 {
-                    Toast.makeText(getActivity(), "Time to party!", Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(getActivity(), PlaylistActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable(BUNDLE_PARCEL_PLAYLIST, m_playlistManager.getPlaylistAt(position));
+                    intent.putExtras(bundle);
+                    startActivity(intent);
                 }
             });
 
@@ -120,17 +123,16 @@ public class PlaylistsFragment extends Fragment
                                 df.setArguments(bundle);
 
                                 df.show(getActivity().getFragmentManager(), "dialog-edit-playlist");
-                                return true;
                             }
                             else if (itemId == R.id.menu_playlist_remove)
                             {
-                                return true;
+                                m_playlistManager.remove(position);
                             }
                             return true;
                         }
                     });
                     MenuInflater inflater = popup.getMenuInflater();
-                    inflater.inflate(R.menu.menu_playlist, popup.getMenu());
+                    inflater.inflate(R.menu.menu_playlist_item, popup.getMenu());
                     popup.show();
                 }
             });
@@ -139,9 +141,9 @@ public class PlaylistsFragment extends Fragment
         @Override
         public int getItemCount()
         {
-            if (m_playlists != null)
+            if (m_playlistManager != null)
             {
-                return m_playlists.size();
+                return m_playlistManager.getPlaylists().size();
             }
             return 0;
         }

@@ -34,7 +34,7 @@ public class SongRecyclerViewAdapter
     public SongRecyclerViewAdapter(
             MediaServiceActivity activity,
             @Nullable BitmapProvider bitmapProvider,
-            List<DBPlaylist> playlists,
+            @Nullable List<DBPlaylist> playlists,
             Playlist.ListCreator playlistCreatorTask)
     {
         m_activity = activity;
@@ -143,8 +143,7 @@ public class SongRecyclerViewAdapter
                         {
                             return true;
                         }
-
-                        if (item.getItemId() == R.id.menu_song_new_playlist)
+                        else if (item.getItemId() == R.id.menu_song_new_playlist)
                         {
                             Bundle bundle = new Bundle();
                             bundle.putLong("trackID", track.ID);
@@ -153,6 +152,10 @@ public class SongRecyclerViewAdapter
                             df.setArguments(bundle);
 
                             df.show(m_activity.getFragmentManager(), "dialog-new-playlist");
+                        }
+                        else
+                        {
+
                         }
                         return true;
                     }

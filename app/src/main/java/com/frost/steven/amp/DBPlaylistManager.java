@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.DropBoxManager;
 import android.provider.MediaStore;
 
 /**
@@ -110,7 +111,22 @@ public class DBPlaylistManager
         @Override
         protected void onPostExecute(DBPlaylist playlist)
         {
-            playlist.addTrack(m_contentResolver, m_trackIdx);
+            if (playlist != null)
+            {
+                playlist.addTrack(m_contentResolver, m_trackIdx);
+            }
+            else
+            {
+                // The playlist already exists, just add the song to that one
+                for (DBPlaylist plist : m_playlists)
+                {
+                    if (plist.Name.equals(m_name))
+                    {
+                        plist.addTrack(m_contentResolver, m_trackIdx);
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -132,6 +148,15 @@ public class DBPlaylistManager
         {
             m_idx = idx;
             m_name = name;
+        }
+
+        @Override
+        protected void onPreExecute()
+        {
+            DBPlaylist playlist = m_playlists.get(m_idx);
+            playlist.Name = m_name;
+
+            m_playlists.set(m_idx, playlist);
         }
 
         @Override
@@ -161,7 +186,8 @@ public class DBPlaylistManager
      */
     public class RemoveTask extends AsyncTask<Void, Void, Void>
     {
-        int m_idx;
+        int        m_idx;
+        DBPlaylist m_tempPlaylist;
 
         public RemoveTask(int idx)
         {
@@ -171,13 +197,14 @@ public class DBPlaylistManager
         @Override
         protected void onPreExecute()
         {
+            m_tempPlaylist = m_playlists.get(m_idx);
             m_playlists.remove(m_idx);
         }
 
         @Override
         protected Void doInBackground(Void... params)
         {
-            long playlistId = m_playlists.get(m_idx).Id;
+            long playlistId = m_tempPlaylist.Id;
             m_contentResolver.delete(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, "_id=" + playlistId, null);
 
             return null;
