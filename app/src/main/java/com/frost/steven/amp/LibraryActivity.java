@@ -1,7 +1,9 @@
 package com.frost.steven.amp;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.AsyncTask;
+import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 
 import android.support.v4.app.Fragment;
@@ -13,10 +15,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+/**
+ * This is the main activity that the user lands on when the launch the
+ * application. It holds three tabs; Albums, Playlists and Songs. Each tab
+ * is a fragment that accesses shared state such as the bitmap cache and
+ * playlist manager.
+ */
 public class LibraryActivity extends MediaServiceActivity implements DBPlaylistManager.Container
 {
-    private BitmapProvider    m_bitmapProvider;
-    private DBPlaylistManager m_playlistManager;
+    private BitmapProvider       m_bitmapProvider;
+    private DBPlaylistManager    m_playlistManager;
+    private Playlist.ListCreator m_masterPlaylistTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -33,22 +42,14 @@ public class LibraryActivity extends MediaServiceActivity implements DBPlaylistM
         ViewPager viewPager = (ViewPager)findViewById(R.id.container);
         viewPager.setAdapter(sectionsPagerAdapter);
 
-        // Playlist Manager
-        m_playlistManager = new DBPlaylistManager(getContentResolver());
-
-        // Playlists
-        DBPlaylist.ListCreator playlistsTask = new DBPlaylist.ListCreator(getContentResolver(), m_playlistManager.getPlaylists());
-        playlistsTask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
-
-        // Bitmap Provider
-        m_bitmapProvider = new BitmapProvider(getResources(), getContentResolver());
+        initActivityState();
 
         // Media service
         Intent intent = new Intent(this, MediaService.class);
         startService(intent);
 
         // Tabs
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        TabLayout tabLayout = (TabLayout)findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
     }
 
@@ -92,9 +93,47 @@ public class LibraryActivity extends MediaServiceActivity implements DBPlaylistM
         return m_playlistManager;
     }
 
+    @Override
+    protected void onMediaServiceConnected()
+    {
+        MediaService mediaService = getMediaService();
+        if (mediaService.getPlayerState() == MediaService.PlayerState.Stopped)
+        {
+            mediaService.setPlaylist(m_masterPlaylistTask.getPlaylist());
+        }
+    }
+
     public BitmapProvider getBitmapProvider()
     {
         return m_bitmapProvider;
+    }
+
+    public Playlist.ListCreator getMasterPlaylistTask()
+    {
+        return m_masterPlaylistTask;
+    }
+
+    private void initActivityState()
+    {
+        // Playlist Manager
+        m_playlistManager = new DBPlaylistManager(getContentResolver());
+
+        // MediaStore Playlists
+        DBPlaylist.ListCreator playlistsTask = new DBPlaylist.ListCreator(getContentResolver(), m_playlistManager.getPlaylists());
+        playlistsTask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+
+        // Master playlist
+        Playlist masterPlaylist = new Playlist();
+        m_masterPlaylistTask = new Playlist.ListCreator(
+            getContentResolver(),
+            masterPlaylist,
+            null,
+            MediaStore.Audio.Media.TITLE
+        );
+        m_masterPlaylistTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+        // Bitmap Provider
+        m_bitmapProvider = new BitmapProvider(getResources(), getContentResolver());
     }
 
     /**
@@ -102,7 +141,7 @@ public class LibraryActivity extends MediaServiceActivity implements DBPlaylistM
      * the sections/tabs/pages. FragmentStatePagerAdapter may be better if the
      * memory footprint of this is too large.
      */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter
+    private class SectionsPagerAdapter extends FragmentPagerAdapter
     {
         private static final int NUM_PAGES = 3;
 
@@ -111,12 +150,6 @@ public class LibraryActivity extends MediaServiceActivity implements DBPlaylistM
             super(fragmentManager);
         }
 
-        /**
-         * Called to instantiate the fragment for the given page.
-         *
-         * @param position section/tab/page index
-         * @return a new page fragment
-         */
         @Override
         public Fragment getItem(int position)
         {
@@ -141,15 +174,15 @@ public class LibraryActivity extends MediaServiceActivity implements DBPlaylistM
         @Override
         public CharSequence getPageTitle(int position)
         {
-            // TODO: Use string resources instead
+            Resources resources = getResources();
             switch (position)
             {
             case 0:
-                return "Albums";
+                return resources.getString(R.string.tab_albums);
             case 1:
-                return "Playlists";
+                return resources.getString(R.string.tab_playlists);
             case 2:
-                return "Songs";
+                return resources.getString(R.string.tab_songs);
             }
             return null;
         }

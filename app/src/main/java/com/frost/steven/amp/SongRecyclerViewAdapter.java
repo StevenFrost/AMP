@@ -2,7 +2,6 @@ package com.frost.steven.amp;
 
 import android.app.DialogFragment;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.PopupMenu;
@@ -21,21 +20,16 @@ import java.util.List;
 
 public class SongRecyclerViewAdapter
     extends RecyclerView.Adapter<SongRecyclerViewAdapter.ViewHolder>
-    implements Playlist.ListCreator.OnTrackInsertedListener, Playlist.ListCreator.OnPlaylistCompleteListener
+    implements Playlist.ListCreator.ProgressListener, Playlist.ListCreator.CompletionListener
 {
-    private MediaServiceActivity     m_activity;
-    private BitmapProvider           m_bitmapProvider;
-    private List<DBPlaylist>         m_playlists;
-    private Playlist                 m_playlist;
-    private Playlist.ListCreator     m_playlistCreatorTask;
+    private MediaServiceActivity m_activity;
+    private BitmapProvider       m_bitmapProvider;
+    private List<DBPlaylist>     m_playlists;
 
-    private int m_tracksInserted = 0;
+    private Playlist             m_playlist;
+    private Playlist.ListCreator m_playlistCreatorTask;
 
-    public SongRecyclerViewAdapter(
-            MediaServiceActivity activity,
-            @Nullable BitmapProvider bitmapProvider,
-            @Nullable List<DBPlaylist> playlists,
-            Playlist.ListCreator playlistCreatorTask)
+    public SongRecyclerViewAdapter(MediaServiceActivity activity, @Nullable BitmapProvider bitmapProvider, @Nullable List<DBPlaylist> playlists, Playlist.ListCreator playlistCreatorTask)
     {
         m_activity = activity;
         m_bitmapProvider = bitmapProvider;
@@ -43,9 +37,8 @@ public class SongRecyclerViewAdapter
 
         m_playlistCreatorTask = playlistCreatorTask;
         m_playlist = m_playlistCreatorTask.getPlaylist();
-        m_playlistCreatorTask.setOnTrackInsertedListener(this);
-        m_playlistCreatorTask.setOnPlaylistCompleteListener(this);
-        m_playlistCreatorTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        m_playlistCreatorTask.addProgressListener(this);
+        m_playlistCreatorTask.addCompletionListener(this);
     }
 
     @Override
@@ -53,25 +46,6 @@ public class SongRecyclerViewAdapter
     {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.element_song, parent, false);
         return new ViewHolder(view);
-    }
-
-    @Override
-    public void onPlaylistComplete()
-    {
-        m_playlistCreatorTask = null;
-        notifyDataSetChanged();
-    }
-
-    @Override
-    public void onTrackInserted(AudioTrack track)
-    {
-        ++m_tracksInserted;
-
-        // TODO: Adjust this for the current number of visible elements on screen
-        if (m_tracksInserted % 20 == 0)
-        {
-            notifyDataSetChanged();
-        }
     }
 
     @Override
@@ -180,7 +154,20 @@ public class SongRecyclerViewAdapter
     @Override
     public int getItemCount()
     {
-        return m_tracksInserted;
+        return m_playlist.getNumTracks();
+    }
+
+    @Override
+    public void onPlaylistProgress(AudioTrack track)
+    {
+        // TODO: Work out if we should use notifyDataSetChanged() here
+    }
+
+    @Override
+    public void onPlaylistCompleted()
+    {
+        m_playlistCreatorTask = null;
+        notifyDataSetChanged();
     }
 
     protected class ViewHolder extends RecyclerView.ViewHolder

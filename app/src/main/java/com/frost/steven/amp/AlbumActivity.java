@@ -53,6 +53,7 @@ public class AlbumActivity extends MediaServiceActivity implements DBPlaylist.Li
             new String[] { MediaStore.Audio.Media.ALBUM_ID + " == " + album.AlbumID.toString() },
             MediaStore.Audio.Media.TRACK + " ASC"
         );
+        playlistCreator.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         SongViewAdapter songRecyclerViewAdapter = new SongViewAdapter(this, null, m_playlists, playlistCreator);
         RecyclerView view = (RecyclerView)findViewById(R.id.content_album_recyclerview);

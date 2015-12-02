@@ -16,6 +16,11 @@
     <string name="nav_sources">Manage Sources</string>
     <string name="nav_about">About</string>
 
+    <!-- Tabs -->
+    <string name="tab_albums">Albums</string>
+    <string name="tab_playlists">Playlists</string>
+    <string name="tab_songs">Songs</string>
+
     <!-- Player -->
     <string name="null_timecode">00:00</string>
 

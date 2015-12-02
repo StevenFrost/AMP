@@ -18,6 +18,10 @@ import java.util.Random;
  * that should be sent to the player. If the user selects a single song in the
  * global songs list then a playlist containing every song will be submitted
  * with a start index of the item pressed in the list.
+ *
+ * This class is different from DBPlaylist as it represents a 'resolved' set
+ * of audio tracks that can be played by the media service rather than a
+ * weak reference to a database row which still needs to be resolved further.
  */
 public class Playlist
 {
@@ -33,9 +37,10 @@ public class Playlist
     {
         m_originalTracks = new ArrayList<>();
         m_shuffledTracks = new ArrayList<>();
-        m_cursor = 0;
-        m_random = new Random();
-        m_repeat = false;
+
+        m_cursor  = 0;
+        m_random  = new Random();
+        m_repeat  = false;
         m_shuffle = false;
     }
 
@@ -158,29 +163,35 @@ public class Playlist
         return m_repeat || m_cursor > 0;
     }
 
+    /**
+     * Asynchronous task that builds a playlist given some basic criteria. The
+     * resulting playlist can be sent to the media service for playback.
+     */
     public static class ListCreator extends AsyncTask<Void, AudioTrack, Void>
     {
         private static final String   s_extVolume = "external";
         private static final String   s_selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         private static final String[] s_projection = {
-            MediaStore.Audio.Media._ID,         /** Track ID                 */
-            MediaStore.Audio.Media.ALBUM_ID,    /** Cover art ID             */
-            MediaStore.Audio.Media.TITLE,       /** Song title               */
-            MediaStore.Audio.Media.ARTIST,      /** Primary artist           */
-            MediaStore.Audio.Media.ALBUM,       /** Album title              */
-            MediaStore.Audio.Media.DATA,        /** Path to the audio file   */
-            MediaStore.Audio.Media.DURATION     /** Duration in milliseconds */
+            MediaStore.Audio.Media._ID,
+            MediaStore.Audio.Media.ALBUM_ID,
+            MediaStore.Audio.Media.TITLE,
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.ALBUM,
+            MediaStore.Audio.Media.DATA,
+            MediaStore.Audio.Media.DURATION
         };
 
-        private ContentResolver            m_contentResolver;
-        private OnTrackInsertedListener    m_onTrackInserted;
-        private OnPlaylistCompleteListener m_onPlaylistComplete;
+        private ContentResolver m_contentResolver;
 
-        private Playlist m_playlist;    /** The playlist to write to      */
-        private String   m_selection;   /** Additional selection criteria */
-        private String   m_orderBy;     /** The field to order by         */
+        private List<ProgressListener>   m_progressListeners;
+        private List<CompletionListener> m_completionListeners;
 
-        private Long     m_playlistId;  /** The ID of the MediaStore playlist to create this one from */
+        private Playlist m_playlist;
+        private String   m_selection;
+        private String   m_orderBy;
+
+        private Long     m_playlistId;
+        private boolean  m_complete;
 
         /**
          * Fills the given playlist with a selection of audio tracks based on
@@ -214,9 +225,14 @@ public class Playlist
         public ListCreator(ContentResolver contentResolver, Playlist playlist, @Nullable String[] selection, @Nullable String orderBy, @Nullable Long playlistId)
         {
             m_contentResolver = contentResolver;
-            m_playlist = playlist;
-            m_orderBy = orderBy;
+
+            m_progressListeners   = new ArrayList<>();
+            m_completionListeners = new ArrayList<>();
+
+            m_playlist   = playlist;
+            m_orderBy    = orderBy;
             m_playlistId = playlistId;
+            m_complete   = false;
 
             m_selection = s_selection;
             if (selection != null)
@@ -298,18 +314,19 @@ public class Playlist
         @Override
         protected void onProgressUpdate(AudioTrack... progress)
         {
-            if (m_onTrackInserted != null)
+            for (ProgressListener listener : m_progressListeners)
             {
-                m_onTrackInserted.onTrackInserted(progress[0]);
+                listener.onPlaylistProgress(progress[0]);
             }
         }
 
         @Override
         protected void onPostExecute(Void result)
         {
-            if (m_onPlaylistComplete != null)
+            m_complete = true;
+            for (CompletionListener listener : m_completionListeners)
             {
-                m_onPlaylistComplete.onPlaylistComplete();
+                listener.onPlaylistCompleted();
             }
         }
 
@@ -318,24 +335,32 @@ public class Playlist
             return m_playlist;
         }
 
-        public void setOnTrackInsertedListener(OnTrackInsertedListener listener)
+        public void addProgressListener(ProgressListener listener)
         {
-            m_onTrackInserted = listener;
+            if (!m_complete)
+            {
+                m_progressListeners.add(listener);
+            }
         }
 
-        public void setOnPlaylistCompleteListener(OnPlaylistCompleteListener listener)
+        public void addCompletionListener(CompletionListener listener)
         {
-            m_onPlaylistComplete = listener;
+            if (m_complete)
+            {
+                listener.onPlaylistCompleted();
+                return;
+            }
+            m_completionListeners.add(listener);
         }
 
-        public interface OnTrackInsertedListener
+        public interface ProgressListener
         {
-            void onTrackInserted(AudioTrack track);
+            void onPlaylistProgress(AudioTrack track);
         }
 
-        public interface OnPlaylistCompleteListener
+        public interface CompletionListener
         {
-            void onPlaylistComplete();
+            void onPlaylistCompleted();
         }
     }
 }

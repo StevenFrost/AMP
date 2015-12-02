@@ -38,6 +38,11 @@ public class MediaServiceActivity extends AppCompatActivity
         super.onStop();
     }
 
+    protected void onMediaServiceConnected()
+    {
+        // Intentionally left (almost) blank.
+    }
+
     public ServiceConnection getServiceConnection()
     {
         return m_connection;
@@ -62,6 +67,8 @@ public class MediaServiceActivity extends AppCompatActivity
 
             m_mediaService = binder.getService();
             m_serviceBound = true;
+
+            onMediaServiceConnected();
         }
 
         @Override
