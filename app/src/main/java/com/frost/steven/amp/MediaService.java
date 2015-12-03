@@ -98,6 +98,13 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     @Override
+    public void onTaskRemoved(Intent rootIntent)
+    {
+        super.onTaskRemoved(rootIntent);
+        stopSelf();
+    }
+
+    @Override
     public IBinder onBind(Intent intent)
     {
         return m_binder;

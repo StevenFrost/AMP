@@ -35,6 +35,7 @@
         <service
             android:name=".MediaService"
             android:enabled="true"
+            android:stopWithTask="false"
             android:exported="false">
         </service>
 

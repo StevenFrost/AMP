@@ -54,15 +54,6 @@ public class LibraryActivity extends MediaServiceActivity implements DBPlaylistM
     }
 
     @Override
-    protected void onDestroy()
-    {
-        Intent intent = new Intent(this, MediaService.class);
-        stopService(intent);
-
-        super.onDestroy();
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         getMenuInflater().inflate(R.menu.menu_main, menu);
