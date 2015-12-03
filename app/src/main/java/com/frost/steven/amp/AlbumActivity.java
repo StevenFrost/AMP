@@ -99,24 +99,16 @@ public class AlbumActivity extends MediaServiceActivity
         }
         else if (itemID == R.id.menu_library_player)
         {
-            if (getMediaService().getPlayerState() == MediaService.PlayerState.Stopped)
+            MediaService mediaService = getMediaService();
+            if (mediaService.getPlayerState() == MediaService.PlayerState.Stopped)
             {
+                mediaService.setPlaylist(m_playlistTask.getPlaylist());
                 getMediaService().play();
             }
             Intent intent = new Intent(this, PlayerActivity.class);
             startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onMediaServiceConnected()
-    {
-        MediaService mediaService = getMediaService();
-        if (mediaService.getPlayerState() == MediaService.PlayerState.Stopped)
-        {
-            mediaService.setPlaylist(m_playlistTask.getPlaylist());
-        }
     }
 
     private void initActivityState()

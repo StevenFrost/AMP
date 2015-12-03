@@ -66,8 +66,10 @@ public class LibraryActivity extends MediaServiceActivity implements DBPlaylistM
         int itemId = item.getItemId();
         if (itemId == R.id.menu_library_player)
         {
-            if (getMediaService().getPlayerState() == MediaService.PlayerState.Stopped)
+            MediaService mediaService = getMediaService();
+            if (mediaService.getPlayerState() == MediaService.PlayerState.Stopped)
             {
+                mediaService.setPlaylist(m_masterPlaylistTask.getPlaylist());
                 getMediaService().play();
             }
             Intent intent = new Intent(this, PlayerActivity.class);
@@ -86,16 +88,6 @@ public class LibraryActivity extends MediaServiceActivity implements DBPlaylistM
     public DBPlaylistManager getDBPlaylistManager()
     {
         return m_playlistManager;
-    }
-
-    @Override
-    protected void onMediaServiceConnected()
-    {
-        MediaService mediaService = getMediaService();
-        if (mediaService.getPlayerState() == MediaService.PlayerState.Stopped)
-        {
-            mediaService.setPlaylist(m_masterPlaylistTask.getPlaylist());
-        }
     }
 
     public BitmapProvider getBitmapProvider()

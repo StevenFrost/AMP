@@ -165,8 +165,6 @@ public class DBPlaylist implements Parcelable
         @Override
         protected Void doInBackground(Void... params)
         {
-            m_playlists.clear();
-
             Cursor cursor = m_contentResolver.query(
                 MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,
                 s_projection,
