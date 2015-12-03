@@ -129,7 +129,11 @@ public class SongRecyclerViewAdapter
                         }
                         else
                         {
+                            DBPlaylistManager.Container container = (DBPlaylistManager.Container)m_activity;
+                            DBPlaylistManager playlistManager = container.getDBPlaylistManager();
 
+                            DBPlaylist playlist = playlistManager.getPlaylistAt(item.getItemId());
+                            playlist.addTrack(m_activity.getContentResolver(), track.ID);
                         }
                         return true;
                     }

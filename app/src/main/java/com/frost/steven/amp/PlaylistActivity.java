@@ -1,5 +1,6 @@
 package com.frost.steven.amp;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
@@ -45,6 +46,7 @@ public class PlaylistActivity extends MediaServiceActivity
             MediaStore.Audio.Playlists.Members.PLAY_ORDER + " ASC",
             playlist.Id
         );
+        playlistCreator.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         SongViewAdapter songRecyclerViewAdapter = new SongViewAdapter(this, null, null, playlistCreator);
         RecyclerView view = (RecyclerView)findViewById(R.id.content_playlist_recyclerview);
