@@ -292,6 +292,7 @@ public class PlayerActivity extends AppCompatActivity
                         ((ImageButton)findViewById(R.id.player_play_button)).setImageResource(R.drawable.player_play);
                         break;
                     }
+                    updateTrackPositionInterface();
                 }
             });
             m_bound = true;

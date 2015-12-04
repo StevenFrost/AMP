@@ -1,39 +1,43 @@
 package com.frost.steven.amp;
 
-import android.app.DialogFragment;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.List;
-
 public class SongRecyclerViewAdapter
     extends RecyclerView.Adapter<SongRecyclerViewAdapter.ViewHolder>
     implements Playlist.ListCreator.ProgressListener, Playlist.ListCreator.CompletionListener
 {
-    private MediaServiceActivity m_activity;
-    private BitmapProvider       m_bitmapProvider;
-    private List<DBPlaylist>     m_playlists;
+    private MediaServiceActivity        m_activity;
+    private BitmapProvider              m_bitmapProvider;
+    private MenuOnClickListener.Factory m_menuFactory;
 
     private Playlist             m_playlist;
     private Playlist.ListCreator m_playlistCreatorTask;
 
-    public SongRecyclerViewAdapter(MediaServiceActivity activity, @Nullable BitmapProvider bitmapProvider, @Nullable List<DBPlaylist> playlists, Playlist.ListCreator playlistCreatorTask)
+    /**
+     * Constructor
+     *
+     * @param playlistCreatorTask   Async task representing the playlist builder. The view adapter
+     *                              will attach to this to listen for completion in order to update
+     *                              the view appropriately.
+     * @param activity              The parent activity
+     * @param bitmapProvider        The async bitmap provider
+     */
+    public SongRecyclerViewAdapter(Playlist.ListCreator playlistCreatorTask,
+                                   MediaServiceActivity activity,
+                                   @Nullable MenuOnClickListener.Factory menuFactory,
+                                   @Nullable BitmapProvider bitmapProvider)
     {
-        m_activity = activity;
+        m_activity       = activity;
         m_bitmapProvider = bitmapProvider;
-        m_playlists = playlists;
+        m_menuFactory    = menuFactory;
 
         m_playlistCreatorTask = playlistCreatorTask;
         m_playlist = m_playlistCreatorTask.getPlaylist();
@@ -60,7 +64,9 @@ public class SongRecyclerViewAdapter
         holder.m_duration.setText(track.getFormattedDuration());
 
         // Album art
-        if (track.CoverArt == null || m_bitmapProvider == null || holder.m_albumArt.getVisibility() == View.GONE)
+        if (track.CoverArt == null ||
+            m_bitmapProvider == null ||
+            holder.m_albumArt.getVisibility() == View.GONE)
         {
             holder.m_albumArt.setImageBitmap(null);
         }
@@ -69,90 +75,17 @@ public class SongRecyclerViewAdapter
             m_bitmapProvider.makeRequest(holder.m_albumArt, track.CoverArt);
         }
 
-        // Song click listener
-        holder.m_view.setOnClickListener(new View.OnClickListener()
+        holder.m_view.setOnClickListener(new SongClickListener(position));
+
+        // Optional popup menu click listener
+        if (m_menuFactory != null)
         {
-            @Override
-            public void onClick(View view)
-            {
-                if (!m_activity.isMediaServiceBound())
-                {
-                    return;
-                }
+            MenuOnClickListener listener = m_menuFactory.create(m_activity);
+            listener.setPlaylist(m_playlist);
+            listener.setPosition(position);
 
-                // Get the current track
-                MediaService mediaService = m_activity.getMediaService();
-                AudioTrack currentTrack = mediaService.getCurrentTrack();
-
-                // Update the playlist bound to the service
-                mediaService.setPlaylist(m_playlist);
-                m_playlist.setCursor(position);
-
-                // Play the selected track if it isn't the track that is already playing
-                if (currentTrack != m_playlist.getUnshuffledTrack(position))
-                {
-                    mediaService.stop();
-                    mediaService.play();
-                }
-
-                // Start the player activity
-                Intent intent = new Intent(m_activity, PlayerActivity.class);
-                m_activity.startActivity(intent);
-            }
-        });
-
-        // Song menu click listener
-        holder.m_menu.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                PopupMenu popup = new PopupMenu(view.getContext(), view);
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener()
-                {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item)
-                    {
-                        if (item.getItemId() == R.id.menu_song_add_to_playlist)
-                        {
-                            return true;
-                        }
-                        else if (item.getItemId() == R.id.menu_song_new_playlist)
-                        {
-                            Bundle bundle = new Bundle();
-                            bundle.putLong("trackID", track.ID);
-
-                            DialogFragment df = new NewPlaylistFragment();
-                            df.setArguments(bundle);
-
-                            df.show(m_activity.getFragmentManager(), "dialog-new-playlist");
-                        }
-                        else
-                        {
-                            DBPlaylistManager.Container container = (DBPlaylistManager.Container)m_activity;
-                            DBPlaylistManager playlistManager = container.getDBPlaylistManager();
-
-                            DBPlaylist playlist = playlistManager.getPlaylistAt(item.getItemId());
-                            playlist.addTrack(m_activity.getContentResolver(), track.ID);
-                        }
-                        return true;
-                    }
-                });
-                MenuInflater inflater = popup.getMenuInflater();
-                inflater.inflate(R.menu.menu_song, popup.getMenu());
-
-                MenuItem playlistsMenuItem = popup.getMenu().getItem(0);
-                Menu playlistsSubMenu = playlistsMenuItem.getSubMenu();
-
-                for (int i = 0; i < m_playlists.size(); ++i)
-                {
-                    DBPlaylist playlist = m_playlists.get(i);
-                    playlistsSubMenu.add(Menu.NONE, i, Menu.NONE, playlist.Name);
-                }
-
-                popup.show();
-            }
-        });
+            holder.m_menu.setOnClickListener(listener);
+        }
     }
 
     @Override
@@ -174,6 +107,9 @@ public class SongRecyclerViewAdapter
         notifyDataSetChanged();
     }
 
+    /**
+     * POD structure holding view objects contained in a single song row.
+     */
     protected class ViewHolder extends RecyclerView.ViewHolder
     {
         public final View        m_view;
@@ -195,6 +131,44 @@ public class SongRecyclerViewAdapter
             m_album    = (TextView)view.findViewById(R.id.element_song_album);
             m_duration = (TextView)view.findViewById(R.id.element_song_duration);
             m_menu     = (ImageButton)view.findViewById(R.id.element_song_menu);
+        }
+    }
+
+    private class SongClickListener implements View.OnClickListener
+    {
+        private final int m_position;
+
+        public SongClickListener(int position)
+        {
+            m_position = position;
+        }
+
+        @Override
+        public void onClick(View view)
+        {
+            if (!m_activity.isMediaServiceBound())
+            {
+                return;
+            }
+
+            // Get the current track
+            MediaService mediaService = m_activity.getMediaService();
+            AudioTrack currentTrack = mediaService.getCurrentTrack();
+
+            // Update the playlist bound to the service
+            mediaService.setPlaylist(m_playlist);
+            m_playlist.setCursor(m_position);
+
+            // Play the selected track if it isn't the track that is already playing
+            if (currentTrack != m_playlist.getUnshuffledTrack(m_position))
+            {
+                mediaService.stop();
+                mediaService.play();
+            }
+
+            // Start the player activity
+            Intent intent = new Intent(m_activity, PlayerActivity.class);
+            m_activity.startActivity(intent);
         }
     }
 }

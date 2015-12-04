@@ -113,6 +113,7 @@ public class DBPlaylistManager
         {
             if (playlist != null)
             {
+                m_playlists.add(playlist);
                 playlist.addTrack(m_contentResolver, m_trackIdx);
             }
             else

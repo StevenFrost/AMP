@@ -16,8 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
-import java.util.List;
-
 public class AlbumActivity extends MediaServiceActivity
 {
     private Album m_album;
@@ -49,10 +47,9 @@ public class AlbumActivity extends MediaServiceActivity
 
         // Inflate the recycler view
         SongViewAdapter songRecyclerViewAdapter = new SongViewAdapter(
+            m_playlistTask,
             this,
-            null,
-            m_playlistManager.getPlaylists(),
-            m_playlistTask
+            new MenuOnClickListener.SongListener.Factory(m_playlistManager)
         );
         RecyclerView view = (RecyclerView)findViewById(R.id.content_album_recyclerview);
         view.setLayoutManager(new LinearLayoutManager(view.getContext()));
@@ -131,11 +128,18 @@ public class AlbumActivity extends MediaServiceActivity
         m_playlistTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
+    /**
+     * This class derives from the song recycler view adapter to adjust the
+     * visibility of the album art for this specific use case. All other
+     * behaviour remains the same.
+     */
     private class SongViewAdapter extends SongRecyclerViewAdapter
     {
-        public SongViewAdapter(MediaServiceActivity activity, @Nullable BitmapProvider bitmapProvider, List<DBPlaylist> playlists, Playlist.ListCreator playlistCreatorTask)
+        public SongViewAdapter(Playlist.ListCreator playlistCreatorTask,
+                               MediaServiceActivity activity,
+                               @Nullable MenuOnClickListener.Factory menuFactory)
         {
-            super(activity, bitmapProvider, playlists, playlistCreatorTask);
+            super(playlistCreatorTask, activity, menuFactory, null);
         }
 
         @Override

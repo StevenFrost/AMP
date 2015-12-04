@@ -51,6 +51,11 @@ public class LibraryActivity extends MediaServiceActivity implements DBPlaylistM
         // Tabs
         TabLayout tabLayout = (TabLayout)findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+
+        // TODO: Attach a content observer to listen for MediaStore changes.
+        //       This will require changes to many components to deal with all the edge cases.
+        //       There may be some noise around this as it appears the observer is notified when
+        //       tracks are simply accessed.
     }
 
     @Override

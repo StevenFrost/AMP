@@ -8,8 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.List;
-
 /**
  * Fragment representing the songs tab in the Library activity. This fragment
  * will only ever be loaded via the LibraryActivity class so we can safely
@@ -38,14 +36,13 @@ public class SongsFragment extends Fragment
 
         BitmapProvider bitmapProvider     = activity.getBitmapProvider();
         DBPlaylistManager playlistManager = activity.getDBPlaylistManager();
-        List<DBPlaylist> playlists        = playlistManager.getPlaylists();
 
         // Attach the song recycler view adapter
         SongRecyclerViewAdapter songRecyclerViewAdapter = new SongRecyclerViewAdapter(
+            activity.getMasterPlaylistTask(),
             activity,
-            bitmapProvider,
-            playlists,
-            activity.getMasterPlaylistTask()
+            new MenuOnClickListener.SongListener.Factory(playlistManager),
+            bitmapProvider
         );
         m_recyclerView.setAdapter(songRecyclerViewAdapter);
     }

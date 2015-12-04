@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class PlaylistsFragment extends Fragment
 {
@@ -53,7 +52,7 @@ public class PlaylistsFragment extends Fragment
 
     class RecyclerViewAdapter
             extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>
-            implements ListenableArrayList.OnPlaylistCollectionChangedListener
+            implements ListenableArrayList.OnCollectionChangedListener
     {
         private DBPlaylistManager m_playlistManager;
 

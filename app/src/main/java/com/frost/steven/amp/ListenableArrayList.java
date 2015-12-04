@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class ListenableArrayList<E> extends ArrayList<E>
 {
-    List<OnPlaylistCollectionChangedListener> m_listeners;
+    List<OnCollectionChangedListener> m_listeners;
 
     public ListenableArrayList()
     {
@@ -102,20 +102,20 @@ public class ListenableArrayList<E> extends ArrayList<E>
         return res;
     }
 
-    public void attachListener(OnPlaylistCollectionChangedListener listener)
+    public void attachListener(OnCollectionChangedListener listener)
     {
         m_listeners.add(listener);
     }
 
     private void notifyListeners()
     {
-        for (OnPlaylistCollectionChangedListener listener : m_listeners)
+        for (OnCollectionChangedListener listener : m_listeners)
         {
             listener.onPlaylistCollectionChanged(this);
         }
     }
 
-    public interface OnPlaylistCollectionChangedListener
+    public interface OnCollectionChangedListener
     {
         void onPlaylistCollectionChanged(ListenableArrayList collection);
     }

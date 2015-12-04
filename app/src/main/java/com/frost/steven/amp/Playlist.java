@@ -25,17 +25,17 @@ import java.util.Random;
  */
 public class Playlist
 {
-    private List<AudioTrack> m_originalTracks;
-    private List<AudioTrack> m_shuffledTracks;
-    private Integer          m_cursor;
+    private ListenableArrayList<AudioTrack> m_originalTracks;
+    private ArrayList<AudioTrack>           m_shuffledTracks;
 
-    private Random           m_random;
-    private Boolean          m_repeat;
-    private Boolean          m_shuffle;
+    private Integer m_cursor;
+    private Random  m_random;
+    private Boolean m_repeat;
+    private Boolean m_shuffle;
 
     public Playlist()
     {
-        m_originalTracks = new ArrayList<>();
+        m_originalTracks = new ListenableArrayList<>();
         m_shuffledTracks = new ArrayList<>();
 
         m_cursor  = 0;
@@ -161,6 +161,30 @@ public class Playlist
     public boolean hasPreviousTrack()
     {
         return m_repeat || m_cursor > 0;
+    }
+
+    public void removeTrack(int position)
+    {
+        AudioTrack track = m_originalTracks.get(position);
+        if (m_shuffle)
+        {
+            int removalPosition = 0;
+            for (; removalPosition < m_shuffledTracks.size(); ++removalPosition)
+            {
+                AudioTrack at = m_shuffledTracks.get(removalPosition);
+                if (at.ID == track.ID)
+                {
+                    break;
+                }
+            }
+            m_shuffledTracks.remove(removalPosition);
+        }
+        m_originalTracks.remove(position);
+    }
+
+    public void attachPlaylistChangedListener(ListenableArrayList.OnCollectionChangedListener listener)
+    {
+        m_originalTracks.attachListener(listener);
     }
 
     /**
