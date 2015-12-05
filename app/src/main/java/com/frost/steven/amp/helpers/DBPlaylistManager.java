@@ -21,9 +21,8 @@ import com.frost.steven.amp.utils.ListenableArrayList;
  */
 public class DBPlaylistManager
 {
+    private ContentResolver                 m_contentResolver;
     private ListenableArrayList<DBPlaylist> m_playlists;
-
-    private ContentResolver m_contentResolver;
 
     public DBPlaylistManager(ContentResolver contentResolver)
     {
@@ -46,6 +45,14 @@ public class DBPlaylistManager
         return task;
     }
 
+    /**
+     * Edits the given playlist to use the new name
+     *
+     * @param idx   index of the playlist to change
+     * @param name  new playlist name
+     *
+     * @return AsyncTask representing the edit operation
+     */
     public EditTask edit(int idx, String name)
     {
         EditTask task = new EditTask(idx, name);
@@ -53,6 +60,13 @@ public class DBPlaylistManager
         return task;
     }
 
+    /**
+     * Removes the given playlist from the MediaStore.
+     *
+     * @param idx   index of the playlist to remove
+     *
+     * @return AsyncTask representing the removal operation
+     */
     public RemoveTask remove(int idx)
     {
         RemoveTask task = new RemoveTask(idx);
@@ -60,18 +74,26 @@ public class DBPlaylistManager
         return task;
     }
 
+    /**
+     * @return List of database playlists
+     */
     public ListenableArrayList<DBPlaylist> getPlaylists()
     {
         return m_playlists;
     }
 
+    /**
+     * @param idx   index of the database playlist to get
+     *
+     * @return database playlist at the given index
+     */
     public DBPlaylist getPlaylistAt(int idx)
     {
         return m_playlists.get(idx);
     }
 
     /**
-     *
+     * AsyncTask representing the database playlist creation operation.
      */
     public class CreateTask extends AsyncTask<Void, Void, DBPlaylist>
     {
@@ -134,7 +156,7 @@ public class DBPlaylistManager
     }
 
     /**
-     *
+     * AsyncTask representing the database playlist edit operation.
      */
     public class EditTask extends AsyncTask<Void, Void, Long>
     {
@@ -185,7 +207,7 @@ public class DBPlaylistManager
     }
 
     /**
-     *
+     * AsyncTask representing the database playlist removal operation.
      */
     public class RemoveTask extends AsyncTask<Void, Void, Void>
     {
@@ -214,6 +236,9 @@ public class DBPlaylistManager
         }
     }
 
+    /**
+     * Helper interface for database playlist manager retrieval
+     */
     public interface Container
     {
         DBPlaylistManager getDBPlaylistManager();

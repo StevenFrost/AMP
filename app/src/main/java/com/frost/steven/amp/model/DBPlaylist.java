@@ -71,7 +71,9 @@ public class DBPlaylist implements Parcelable
     public String getFormattedDateAdded()
     {
         SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy", Locale.UK);
-        return date.format(new Date(DateAdded));
+        Date d = new Date(DateAdded.longValue());
+        String s = date.format(d);
+        return s;
     }
 
     public class AddTrackTask extends AsyncTask<Void, Void, Void>
@@ -178,7 +180,7 @@ public class DBPlaylist implements Parcelable
 
                 long id = cursor.getLong(idIdx);
                 String name = cursor.getString(nameIdx);
-                long date = cursor.getLong(dateIdx);
+                long date = cursor.getLong(dateIdx) * 1000;
 
                 publishProgress(new DBPlaylist(id, name, date));
             }

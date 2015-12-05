@@ -24,6 +24,14 @@ public class Album implements Parcelable
     public String Artist;
     public Uri    Artwork;
 
+    /**
+     * Constructor
+     *
+     * @param albumID   MediaStore album ID
+     * @param title     Album title
+     * @param artist    Album artist
+     * @param artwork   Optional album artwork URI
+     */
     public Album(Long albumID, String title, String artist, @Nullable Uri artwork)
     {
         AlbumID = albumID;
