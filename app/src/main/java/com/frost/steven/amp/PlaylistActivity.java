@@ -3,18 +3,17 @@ package com.frost.steven.amp;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 
 public class PlaylistActivity extends MediaServiceActivity
         implements Playlist.ListCreator.CompletionListener, ListenableArrayList.OnCollectionChangedListener
 {
-    private Playlist.ListCreator m_playlistCreator;
-    private SongViewAdapter      m_songViewAdapter;
+    private Playlist.ListCreator    m_playlistCreator;
+    private SongRecyclerViewAdapter m_songViewAdapter;
+    private BitmapProvider          m_bitmapProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -51,10 +50,15 @@ public class PlaylistActivity extends MediaServiceActivity
         m_playlistCreator.addCompletionListener(this);
         m_playlistCreator.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-        m_songViewAdapter = new SongViewAdapter(
+        // Bitmap Provider
+        StaticFragment sf = StaticFragment.getInstance(getSupportFragmentManager(), getContentResolver(), getResources());
+        m_bitmapProvider = sf.getBitmapProvider();
+
+        m_songViewAdapter = new SongRecyclerViewAdapter(
             m_playlistCreator,
             this,
-            new MenuOnClickListener.PlaylistSongListener.Factory(internalPlaylist, playlist)
+            new MenuOnClickListener.PlaylistSongListener.Factory(internalPlaylist, playlist),
+            m_bitmapProvider
         );
 
         RecyclerView view = (RecyclerView)findViewById(R.id.content_playlist_recyclerview);
@@ -78,27 +82,5 @@ public class PlaylistActivity extends MediaServiceActivity
     public void onPlaylistCollectionChanged(ListenableArrayList collection)
     {
         m_songViewAdapter.notifyDataSetChanged();
-    }
-
-    /**
-     * This class derives from the song recycler view adapter to adjust the
-     * visibility of the album art for this specific use case. All other
-     * behaviour remains the same.
-     */
-    private class SongViewAdapter extends SongRecyclerViewAdapter
-    {
-        public SongViewAdapter(Playlist.ListCreator playlistCreatorTask,
-                               MediaServiceActivity activity,
-                               @Nullable MenuOnClickListener.Factory menuFactory)
-        {
-            super(playlistCreatorTask, activity, menuFactory, null);
-        }
-
-        @Override
-        public void onBindViewHolder(final ViewHolder holder, final int position)
-        {
-            holder.m_albumArt.setVisibility(View.GONE);
-            super.onBindViewHolder(holder, position);
-        }
     }
 }

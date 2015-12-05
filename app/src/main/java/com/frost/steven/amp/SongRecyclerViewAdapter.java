@@ -64,15 +64,14 @@ public class SongRecyclerViewAdapter
         holder.m_duration.setText(track.getFormattedDuration());
 
         // Album art
-        if (track.CoverArt == null ||
-            m_bitmapProvider == null ||
+        if (m_bitmapProvider == null ||
             holder.m_albumArt.getVisibility() == View.GONE)
         {
             holder.m_albumArt.setImageBitmap(null);
         }
         else
         {
-            m_bitmapProvider.makeRequest(holder.m_albumArt, track.CoverArt);
+            m_bitmapProvider.makeRequest(holder.m_albumArt, track.CoverArt, 100);
         }
 
         holder.m_view.setOnClickListener(new SongClickListener(position));

@@ -3,6 +3,7 @@ package com.frost.steven.amp;
 import android.content.ContentResolver;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -23,8 +24,10 @@ public class BitmapProvider
     private static final int m_maxMemory = (int)(Runtime.getRuntime().maxMemory() / 1024);
     private static final int m_cacheSize = m_maxMemory / 4;
 
-    private Map<Uri, Worker>      m_bitmapTasks;
-    private LruCache<Uri, Bitmap> m_cache;      // TODO: Support bitmaps of different sizes
+    private Bitmap m_placeholderBitmap;
+
+    private Map<String, Worker>      m_bitmapTasks;
+    private LruCache<String, Bitmap> m_cache;
 
     private Resources       m_resources;
     private ContentResolver m_resolver;
@@ -35,22 +38,31 @@ public class BitmapProvider
         m_resolver = resolver;
 
         m_bitmapTasks = new HashMap<>();
-        m_cache = new LruCache<Uri, Bitmap>(m_cacheSize)
+        m_cache = new LruCache<String, Bitmap>(m_cacheSize)
         {
             @Override
-            protected int sizeOf(Uri key, Bitmap bitmap)
+            protected int sizeOf(String key, Bitmap bitmap)
             {
                 return bitmap.getByteCount() / 1024;
             }
         };
+
+        m_placeholderBitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_album_placeholder);
     }
 
-    public synchronized void makeRequest(ImageView imageView, Uri uri)
+    public synchronized void makeRequest(ImageView imageView, Uri uri, int size)
     {
-        if (cancelOutstandingWork(imageView, uri))
+        if (uri == null)
+        {
+            imageView.setImageBitmap(m_placeholderBitmap);
+            return;
+        }
+
+        String key = uri.toString() + size;
+        if (cancelOutstandingWork(imageView, key))
         {
             // Check if the bitmap is in the cache, we can early out in that case
-            Bitmap bitmap = m_cache.get(uri);
+            Bitmap bitmap = m_cache.get(key);
             if (bitmap != null)
             {
                 imageView.setImageBitmap(bitmap);
@@ -59,9 +71,9 @@ public class BitmapProvider
 
             // Now check if there are any outstanding workers processing the
             // requested bitmap
-            if (m_bitmapTasks.containsKey(uri))
+            if (m_bitmapTasks.containsKey(key))
             {
-                Worker worker = m_bitmapTasks.get(uri);
+                Worker worker = m_bitmapTasks.get(key);
                 worker.addViewReference(imageView);
 
                 imageView.setImageDrawable(new AsyncDrawable(m_resources, null, worker));
@@ -70,10 +82,10 @@ public class BitmapProvider
 
             // If the bitmap isn't in the cache and isn't in progress we should
             // start a new task to load it into memory
-            Worker worker = new Worker();
+            Worker worker = new Worker(uri, size, key);
             worker.addViewReference(imageView);
             imageView.setImageDrawable(new AsyncDrawable(m_resources, null, worker));
-            worker.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, uri);
+            worker.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
 
@@ -90,15 +102,15 @@ public class BitmapProvider
         return null;
     }
 
-    private boolean cancelOutstandingWork(ImageView view, Uri uri)
+    private boolean cancelOutstandingWork(ImageView view, String key)
     {
         Worker worker = getTask(view);
 
         if (worker != null)
         {
-            Uri workerUri = worker.m_uri;
+            String workerKey = worker.m_key;
 
-            if (workerUri == uri)
+            if (workerKey.equals(key))
             {
                 return false;
             }
@@ -107,14 +119,14 @@ public class BitmapProvider
         return true;
     }
 
-    private synchronized void removeFromTaskMap(Uri uri)
+    private synchronized void removeFromTaskMap(String key)
     {
-        m_bitmapTasks.remove(uri);
+        m_bitmapTasks.remove(key);
     }
 
-    private synchronized void addToCache(Uri uri, Bitmap bitmap)
+    private synchronized void addToCache(String key, Bitmap bitmap)
     {
-        m_cache.put(uri, bitmap);
+        m_cache.put(key, bitmap);
     }
 
     private class AsyncDrawable extends BitmapDrawable
@@ -133,28 +145,33 @@ public class BitmapProvider
         }
     }
 
-    private class Worker extends AsyncTask<Uri, Void, Bitmap>
+    private class Worker extends AsyncTask<Void, Void, Bitmap>
     {
         private List<WeakReference<ImageView>> m_views;
 
-        public  Uri     m_uri;
-        private Bitmap  m_bitmap = null;
+        public Uri     m_uri;
+        public int     m_size;
+        public String  m_key;
 
-        public Worker()
+        private Bitmap m_bitmap = null;
+
+        public Worker(Uri uri, int size, String key)
         {
+            m_uri   = uri;
+            m_size  = size;
+            m_key   = key;
             m_views = new ArrayList<>();
         }
 
         @Override
-        protected Bitmap doInBackground(Uri... params)
+        protected Bitmap doInBackground(Void... params)
         {
-            m_uri = params[0];
             try
             {
                 m_bitmap = MediaStore.Images.Media.getBitmap(m_resolver, m_uri);
-                m_bitmap = Bitmap.createScaledBitmap(m_bitmap, 100, 100, true);
+                m_bitmap = Bitmap.createScaledBitmap(m_bitmap, m_size, m_size, true);
 
-                addToCache(m_uri, m_bitmap);
+                addToCache(m_key, m_bitmap);
             }
             catch (IOException | NullPointerException e)
             {
@@ -176,7 +193,7 @@ public class BitmapProvider
                 imageView.setImageBitmap(result);
             }
 
-            removeFromTaskMap(m_uri);
+            removeFromTaskMap(m_key);
         }
 
         synchronized void addViewReference(ImageView imageView)

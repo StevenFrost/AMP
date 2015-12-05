@@ -163,14 +163,7 @@ public class AlbumsFragment extends Fragment
                 }
             });
 
-            if (album.Artwork == null)
-            {
-                holder.m_artwork.setImageBitmap(null);
-            }
-            else
-            {
-                m_activity.getBitmapProvider().makeRequest(holder.m_artwork, album.Artwork);
-            }
+            m_activity.getBitmapProvider().makeRequest(holder.m_artwork, album.Artwork, 100);
         }
 
         @Override

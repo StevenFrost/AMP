@@ -14,6 +14,7 @@
                android:paddingStart="2dp"
                android:paddingEnd="10dp"
                android:scaleType="fitCenter"
+               android:background="@color/colourGrey2"
                android:src="@drawable/notes"
                android:contentDescription="@string/cd_album_art"/>
 

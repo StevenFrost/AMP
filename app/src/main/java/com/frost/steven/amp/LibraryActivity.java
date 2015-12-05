@@ -59,6 +59,19 @@ public class LibraryActivity extends MediaServiceActivity implements DBPlaylistM
     }
 
     @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        // Playlist Manager
+        m_playlistManager = new DBPlaylistManager(getContentResolver());
+
+        // MediaStore Playlists
+        DBPlaylist.ListCreator playlistsTask = new DBPlaylist.ListCreator(getContentResolver(), m_playlistManager.getPlaylists());
+        playlistsTask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -107,13 +120,6 @@ public class LibraryActivity extends MediaServiceActivity implements DBPlaylistM
 
     private void initActivityState()
     {
-        // Playlist Manager
-        m_playlistManager = new DBPlaylistManager(getContentResolver());
-
-        // MediaStore Playlists
-        DBPlaylist.ListCreator playlistsTask = new DBPlaylist.ListCreator(getContentResolver(), m_playlistManager.getPlaylists());
-        playlistsTask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
-
         // Master playlist
         Playlist masterPlaylist = new Playlist();
         m_masterPlaylistTask = new Playlist.ListCreator(
@@ -125,7 +131,8 @@ public class LibraryActivity extends MediaServiceActivity implements DBPlaylistM
         m_masterPlaylistTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         // Bitmap Provider
-        m_bitmapProvider = new BitmapProvider(getResources(), getContentResolver());
+        StaticFragment sf = StaticFragment.getInstance(getSupportFragmentManager(), getContentResolver(), getResources());
+        m_bitmapProvider = sf.getBitmapProvider();
     }
 
     /**

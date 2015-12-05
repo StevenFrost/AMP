@@ -149,17 +149,11 @@ public class DBPlaylist implements Parcelable
 
         private ContentResolver  m_contentResolver;
         private List<DBPlaylist> m_playlists;
-        private boolean          m_complete;
-
-        private List<OnUnresolvedPlaylistsCompletedListener> m_onPlaylistsCompletedListeners;
 
         public ListCreator(ContentResolver contentResolver, List<DBPlaylist> playlists)
         {
-            m_complete        = false;
             m_contentResolver = contentResolver;
             m_playlists       = playlists;
-
-            m_onPlaylistsCompletedListeners = new ArrayList<>();
         }
 
         @Override
@@ -187,8 +181,7 @@ public class DBPlaylist implements Parcelable
                 String name = cursor.getString(nameIdx);
                 long date = cursor.getLong(dateIdx);
 
-                DBPlaylist playlist = new DBPlaylist(id, name, date);
-                m_playlists.add(playlist);
+                publishProgress(new DBPlaylist(id, name, date));
             }
 
             cursor.close();
@@ -196,28 +189,9 @@ public class DBPlaylist implements Parcelable
         }
 
         @Override
-        protected void onPostExecute(Void result)
+        protected void onProgressUpdate(DBPlaylist ... progress)
         {
-            m_complete = true;
-            for (OnUnresolvedPlaylistsCompletedListener listener : m_onPlaylistsCompletedListeners)
-            {
-                listener.onUnresolvedPlaylistsCompleted();
-            }
-        }
-
-        public void addOnUnresolvedPlaylistsCompletedListener(OnUnresolvedPlaylistsCompletedListener listener)
-        {
-            if (m_complete)
-            {
-                listener.onUnresolvedPlaylistsCompleted();
-                return;
-            }
-            m_onPlaylistsCompletedListeners.add(listener);
-        }
-
-        public interface OnUnresolvedPlaylistsCompletedListener
-        {
-            void onUnresolvedPlaylistsCompleted();
+            m_playlists.add(progress[0]);
         }
     }
 

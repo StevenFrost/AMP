@@ -5,19 +5,26 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
+import android.util.TypedValue;
 import android.widget.RemoteViews;
 
 import java.io.IOException;
@@ -384,6 +391,18 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         view.setTextViewText(R.id.notification_player_album, track.Album);
 
         view.setImageViewResource(R.id.notification_player_playpause, m_playerState == PlayerState.Playing ? R.drawable.player_pause_minimal : R.drawable.player_play_minimal);
+
+        if (track.CoverArt != null)
+        {
+            view.setViewPadding(R.id.notification_player_artwork, 0, 0, 0, 0);
+            view.setImageViewUri(R.id.notification_player_artwork, track.CoverArt);
+        }
+        else
+        {
+            int paddingTop = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics());
+            view.setViewPadding(R.id.notification_player_artwork, 0, paddingTop, 0, 0);
+            view.setImageViewResource(R.id.notification_player_artwork, R.drawable.notes);
+        }
     }
 
     /**

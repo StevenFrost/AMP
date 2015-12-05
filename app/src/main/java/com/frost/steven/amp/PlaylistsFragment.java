@@ -33,12 +33,20 @@ public class PlaylistsFragment extends Fragment
     {
         super.onActivityCreated(savedInstanceState);
 
+        m_recyclerViewAdapter = new RecyclerViewAdapter();
+        m_recyclerView.setAdapter(m_recyclerViewAdapter);
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
         LibraryActivity activity = (LibraryActivity)getActivity();
         DBPlaylistManager playlistManager = activity.getDBPlaylistManager();
-
-        m_recyclerViewAdapter = new RecyclerViewAdapter(playlistManager);
         playlistManager.getPlaylists().attachListener(m_recyclerViewAdapter);
-        m_recyclerView.setAdapter(m_recyclerViewAdapter);
+
+        m_recyclerViewAdapter.setPlaylistManager(playlistManager);
     }
 
     @Override
@@ -56,27 +64,17 @@ public class PlaylistsFragment extends Fragment
     {
         private DBPlaylistManager m_playlistManager;
 
-        public RecyclerViewAdapter(DBPlaylistManager playlistManager)
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
         {
-            m_playlistManager = playlistManager;
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.element_playlist, parent, false);
+            return new ViewHolder(view);
         }
 
         @Override
         public void onPlaylistCollectionChanged(ListenableArrayList collection)
         {
             notifyDataSetChanged();
-        }
-
-        public DBPlaylist getValueAt(int position)
-        {
-            return m_playlistManager.getPlaylistAt(position);
-        }
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
-        {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.element_playlist, parent, false);
-            return new ViewHolder(view);
         }
 
         @Override
@@ -145,6 +143,17 @@ public class PlaylistsFragment extends Fragment
                 return m_playlistManager.getPlaylists().size();
             }
             return 0;
+        }
+
+        public void setPlaylistManager(DBPlaylistManager playlistManager)
+        {
+            m_playlistManager = playlistManager;
+            notifyDataSetChanged();
+        }
+
+        public DBPlaylist getValueAt(int position)
+        {
+            return m_playlistManager.getPlaylistAt(position);
         }
 
         class ViewHolder extends RecyclerView.ViewHolder

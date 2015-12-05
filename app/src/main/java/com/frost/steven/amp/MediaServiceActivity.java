@@ -18,7 +18,7 @@ public class MediaServiceActivity extends AppCompatActivity
     }
 
     @Override
-    public void onStart()
+    protected void onStart()
     {
         super.onStart();
 
@@ -39,6 +39,11 @@ public class MediaServiceActivity extends AppCompatActivity
     }
 
     protected void onMediaServiceConnected()
+    {
+        // Intentionally left (almost) blank.
+    }
+
+    protected void onMediaServiceDisconnected()
     {
         // Intentionally left (almost) blank.
     }
@@ -75,6 +80,7 @@ public class MediaServiceActivity extends AppCompatActivity
         public void onServiceDisconnected(ComponentName name)
         {
             m_serviceBound = false;
+            onMediaServiceDisconnected();
         }
     };
 }

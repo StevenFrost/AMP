@@ -1,7 +1,6 @@
 package com.frost.steven.amp;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -16,7 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
-public class AlbumActivity extends MediaServiceActivity
+public class AlbumActivity extends MediaServiceActivity implements DBPlaylistManager.Container
 {
     private Album m_album;
 
@@ -55,21 +54,11 @@ public class AlbumActivity extends MediaServiceActivity
         view.setLayoutManager(new LinearLayoutManager(view.getContext()));
         view.setAdapter(songRecyclerViewAdapter);
 
-        // TODO: Make this async
-        if (m_album.Artwork != null)
-        {
-            try
-            {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), m_album.Artwork);
-                Bitmap albumArt = Bitmap.createScaledBitmap(bitmap, 512, 512, true);
+        // Bitmap Provider
+        StaticFragment sf = StaticFragment.getInstance(getSupportFragmentManager(), getContentResolver(), getResources());
+        BitmapProvider bitmapProvider = sf.getBitmapProvider();
 
-                ((ImageView)findViewById(R.id.activity_album_artwork)).setImageBitmap(albumArt);
-            }
-            catch (Exception ex)
-            {
-                ex.printStackTrace();
-            }
-        }
+        bitmapProvider.makeRequest((ImageView)findViewById(R.id.activity_album_artwork), m_album.Artwork, 500);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null)
@@ -106,6 +95,12 @@ public class AlbumActivity extends MediaServiceActivity
             startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public DBPlaylistManager getDBPlaylistManager()
+    {
+        return m_playlistManager;
     }
 
     private void initActivityState()
