@@ -1,4 +1,4 @@
-package com.frost.steven.amp;
+package com.frost.steven.amp.ui;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -10,6 +10,9 @@ import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
+
+import com.frost.steven.amp.R;
+import com.frost.steven.amp.helpers.DBPlaylistManager;
 
 public class EditPlaylistFragment extends DialogFragment
 {

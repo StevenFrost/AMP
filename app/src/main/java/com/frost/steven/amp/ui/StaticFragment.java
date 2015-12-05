@@ -1,4 +1,4 @@
-package com.frost.steven.amp;
+package com.frost.steven.amp.ui;
 
 import android.content.ContentResolver;
 import android.content.res.Resources;
@@ -7,6 +7,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
+import com.frost.steven.amp.helpers.BitmapResolver;
+
 /**
  * Persistent fragment that holds application state that should ideally
  * remain through configuration changes (resized screen, orientation change,
@@ -14,12 +16,12 @@ import android.support.v4.app.FragmentTransaction;
  */
 public class StaticFragment extends Fragment
 {
-    private static final String FRAGMENT_ID = "com.frost.steven.amp.StaticFragment";
+    private static final String FRAGMENT_ID = "com.frost.steven.amp.ui.StaticFragment";
 
     private ContentResolver m_contentResolver;
     private Resources       m_resources;
 
-    private BitmapProvider  m_bitmapProvider;
+    private BitmapResolver m_bitmapResolver;
 
     public static StaticFragment getInstance(FragmentManager fragmentManager, ContentResolver contentResolver, Resources resources)
     {
@@ -47,12 +49,12 @@ public class StaticFragment extends Fragment
 
     private void initialise()
     {
-        m_bitmapProvider = new BitmapProvider(m_resources, m_contentResolver);
+        m_bitmapResolver = new BitmapResolver(m_resources, m_contentResolver);
     }
 
-    public BitmapProvider getBitmapProvider()
+    public BitmapResolver getBitmapProvider()
     {
-        return m_bitmapProvider;
+        return m_bitmapResolver;
     }
 
     private void setContentResolver(ContentResolver contentResolver)

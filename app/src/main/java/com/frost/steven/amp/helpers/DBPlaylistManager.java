@@ -1,12 +1,14 @@
-package com.frost.steven.amp;
+package com.frost.steven.amp.helpers;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.DropBoxManager;
 import android.provider.MediaStore;
+
+import com.frost.steven.amp.model.DBPlaylist;
+import com.frost.steven.amp.utils.ListenableArrayList;
 
 /**
  * This class manages the interaction between the application and the internal

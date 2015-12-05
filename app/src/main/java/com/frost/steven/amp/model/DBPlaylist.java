@@ -1,4 +1,4 @@
-package com.frost.steven.amp;
+package com.frost.steven.amp.model;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;

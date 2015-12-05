@@ -1,4 +1,4 @@
-package com.frost.steven.amp;
+package com.frost.steven.amp.ui;
 
 import android.app.DialogFragment;
 import android.content.Intent;
@@ -15,9 +15,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.frost.steven.amp.R;
+import com.frost.steven.amp.model.DBPlaylist;
+import com.frost.steven.amp.helpers.DBPlaylistManager;
+import com.frost.steven.amp.utils.ListenableArrayList;
+
 public class PlaylistsFragment extends Fragment
 {
-    private static final String FRAGMENT_ID = "com.frost.steven.amp.PlaylistsFragment";
+    private static final String FRAGMENT_ID = "com.frost.steven.amp.ui.PlaylistsFragment";
     public static final  String BUNDLE_PARCEL_PLAYLIST = "com.frost.steven.amp.BundleParcelPlaylist";
 
     private RecyclerView        m_recyclerView;

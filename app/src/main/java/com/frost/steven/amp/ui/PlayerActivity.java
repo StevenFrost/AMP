@@ -1,4 +1,4 @@
-package com.frost.steven.amp;
+package com.frost.steven.amp.ui;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +10,11 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.frost.steven.amp.helpers.BitmapResolver;
+import com.frost.steven.amp.R;
+import com.frost.steven.amp.model.AudioTrack;
+import com.frost.steven.amp.service.MediaService;
+
 /**
  * Activity representing the player. The player presents transport controls and
  * current song information to the user, allowing them to scrub through the
@@ -18,7 +23,7 @@ import android.widget.TextView;
  */
 public class PlayerActivity extends MediaServiceActivity
 {
-    private BitmapProvider m_bitmapProvider;
+    private BitmapResolver m_bitmapResolver;
 
     private boolean m_shuffle = false;
     private boolean m_repeat = false;
@@ -50,7 +55,7 @@ public class PlayerActivity extends MediaServiceActivity
 
         // Bitmap Provider
         StaticFragment sf = StaticFragment.getInstance(getSupportFragmentManager(), getContentResolver(), getResources());
-        m_bitmapProvider = sf.getBitmapProvider();
+        m_bitmapResolver = sf.getBitmapProvider();
     }
 
     @Override
@@ -140,11 +145,11 @@ public class PlayerActivity extends MediaServiceActivity
         if (previousTrack == null || previousTrack.CoverArt == null || !previousTrack.CoverArt.equals(newTrack.CoverArt))
         {
             ImageView albumArtView = (ImageView) findViewById(R.id.element_song_artwork);
-            m_bitmapProvider.makeRequest(albumArtView, newTrack.CoverArt, 100);
+            m_bitmapResolver.makeRequest(albumArtView, newTrack.CoverArt, 100);
 
             if (newTrack.CoverArt != null)
             {
-                m_bitmapProvider.makeRequest(albumArtLargeView, newTrack.CoverArt, 500);
+                m_bitmapResolver.makeRequest(albumArtLargeView, newTrack.CoverArt, 500);
             }
             else
             {

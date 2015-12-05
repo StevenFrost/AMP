@@ -1,4 +1,4 @@
-package com.frost.steven.amp;
+package com.frost.steven.amp.model;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+
+import com.frost.steven.amp.utils.ListenableArrayList;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;

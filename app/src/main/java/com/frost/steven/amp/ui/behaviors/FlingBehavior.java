@@ -1,4 +1,4 @@
-package com.frost.steven.amp;
+package com.frost.steven.amp.ui.behaviors;
 
 import android.content.Context;
 import android.support.design.widget.AppBarLayout;

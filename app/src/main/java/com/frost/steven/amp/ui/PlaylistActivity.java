@@ -1,4 +1,4 @@
-package com.frost.steven.amp;
+package com.frost.steven.amp.ui;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -8,12 +8,20 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 
+import com.frost.steven.amp.helpers.BitmapResolver;
+import com.frost.steven.amp.model.DBPlaylist;
+import com.frost.steven.amp.utils.ListenableArrayList;
+import com.frost.steven.amp.ui.listeners.MenuOnClickListener;
+import com.frost.steven.amp.R;
+import com.frost.steven.amp.ui.adapters.SongRecyclerViewAdapter;
+import com.frost.steven.amp.model.Playlist;
+
 public class PlaylistActivity extends MediaServiceActivity
         implements Playlist.ListCreator.CompletionListener, ListenableArrayList.OnCollectionChangedListener
 {
     private Playlist.ListCreator    m_playlistCreator;
     private SongRecyclerViewAdapter m_songViewAdapter;
-    private BitmapProvider          m_bitmapProvider;
+    private BitmapResolver m_bitmapResolver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -52,13 +60,12 @@ public class PlaylistActivity extends MediaServiceActivity
 
         // Bitmap Provider
         StaticFragment sf = StaticFragment.getInstance(getSupportFragmentManager(), getContentResolver(), getResources());
-        m_bitmapProvider = sf.getBitmapProvider();
+        m_bitmapResolver = sf.getBitmapProvider();
 
         m_songViewAdapter = new SongRecyclerViewAdapter(
             m_playlistCreator,
             this,
-            new MenuOnClickListener.PlaylistSongListener.Factory(internalPlaylist, playlist),
-            m_bitmapProvider
+            new MenuOnClickListener.PlaylistSongListener.Factory(internalPlaylist, playlist), m_bitmapResolver
         );
 
         RecyclerView view = (RecyclerView)findViewById(R.id.content_playlist_recyclerview);

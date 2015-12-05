@@ -1,4 +1,4 @@
-package com.frost.steven.amp;
+package com.frost.steven.amp.service;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -20,6 +20,11 @@ import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.util.TypedValue;
 import android.widget.RemoteViews;
+
+import com.frost.steven.amp.ui.PlayerActivity;
+import com.frost.steven.amp.R;
+import com.frost.steven.amp.model.AudioTrack;
+import com.frost.steven.amp.model.Playlist;
 
 import java.io.IOException;
 
@@ -43,8 +48,8 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
 
     // State
     private PlayerState m_playerState = PlayerState.Stopped;
-    private Playlist    m_playlist    = null;
-    private AudioTrack  m_prevTrack   = null;
+    private Playlist m_playlist    = null;
+    private AudioTrack m_prevTrack   = null;
 
     // Assorted private members
     private final IBinder       m_binder = new MediaBinder();
@@ -52,7 +57,7 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
     private NotificationManager m_notificationManager;
     private BroadcastReceiver   m_broadcastReceiver;
 
-    enum PlayerState
+    public enum PlayerState
     {
         Paused,
         Playing,
@@ -408,7 +413,7 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
      */
     public class MediaBinder extends Binder
     {
-        MediaService getService()
+        public MediaService getService()
         {
             return MediaService.this;
         }

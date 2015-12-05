@@ -1,4 +1,4 @@
-package com.frost.steven.amp;
+package com.frost.steven.amp.ui;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -14,6 +14,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+
+import com.frost.steven.amp.helpers.BitmapResolver;
+import com.frost.steven.amp.model.DBPlaylist;
+import com.frost.steven.amp.helpers.DBPlaylistManager;
+import com.frost.steven.amp.ui.listeners.MenuOnClickListener;
+import com.frost.steven.amp.R;
+import com.frost.steven.amp.ui.adapters.SongRecyclerViewAdapter;
+import com.frost.steven.amp.model.Album;
+import com.frost.steven.amp.model.Playlist;
+import com.frost.steven.amp.service.MediaService;
 
 public class AlbumActivity extends MediaServiceActivity implements DBPlaylistManager.Container
 {
@@ -56,9 +66,9 @@ public class AlbumActivity extends MediaServiceActivity implements DBPlaylistMan
 
         // Bitmap Provider
         StaticFragment sf = StaticFragment.getInstance(getSupportFragmentManager(), getContentResolver(), getResources());
-        BitmapProvider bitmapProvider = sf.getBitmapProvider();
+        BitmapResolver bitmapResolver = sf.getBitmapProvider();
 
-        bitmapProvider.makeRequest((ImageView)findViewById(R.id.activity_album_artwork), m_album.Artwork, 500);
+        bitmapResolver.makeRequest((ImageView)findViewById(R.id.activity_album_artwork), m_album.Artwork, 500);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null)

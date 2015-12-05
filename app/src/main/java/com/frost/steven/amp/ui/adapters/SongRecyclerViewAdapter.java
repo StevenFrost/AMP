@@ -1,4 +1,4 @@
-package com.frost.steven.amp;
+package com.frost.steven.amp.ui.adapters;
 
 import android.content.Intent;
 import android.support.annotation.Nullable;
@@ -10,12 +10,21 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.frost.steven.amp.helpers.BitmapResolver;
+import com.frost.steven.amp.ui.listeners.MenuOnClickListener;
+import com.frost.steven.amp.R;
+import com.frost.steven.amp.model.AudioTrack;
+import com.frost.steven.amp.model.Playlist;
+import com.frost.steven.amp.service.MediaService;
+import com.frost.steven.amp.ui.MediaServiceActivity;
+import com.frost.steven.amp.ui.PlayerActivity;
+
 public class SongRecyclerViewAdapter
     extends RecyclerView.Adapter<SongRecyclerViewAdapter.ViewHolder>
     implements Playlist.ListCreator.ProgressListener, Playlist.ListCreator.CompletionListener
 {
-    private MediaServiceActivity        m_activity;
-    private BitmapProvider              m_bitmapProvider;
+    private MediaServiceActivity m_activity;
+    private BitmapResolver m_bitmapResolver;
     private MenuOnClickListener.Factory m_menuFactory;
 
     private Playlist             m_playlist;
@@ -28,15 +37,15 @@ public class SongRecyclerViewAdapter
      *                              will attach to this to listen for completion in order to update
      *                              the view appropriately.
      * @param activity              The parent activity
-     * @param bitmapProvider        The async bitmap provider
+     * @param bitmapResolver        The async bitmap provider
      */
     public SongRecyclerViewAdapter(Playlist.ListCreator playlistCreatorTask,
                                    MediaServiceActivity activity,
                                    @Nullable MenuOnClickListener.Factory menuFactory,
-                                   @Nullable BitmapProvider bitmapProvider)
+                                   @Nullable BitmapResolver bitmapResolver)
     {
         m_activity       = activity;
-        m_bitmapProvider = bitmapProvider;
+        m_bitmapResolver = bitmapResolver;
         m_menuFactory    = menuFactory;
 
         m_playlistCreatorTask = playlistCreatorTask;
@@ -64,14 +73,14 @@ public class SongRecyclerViewAdapter
         holder.m_duration.setText(track.getFormattedDuration());
 
         // Album art
-        if (m_bitmapProvider == null ||
+        if (m_bitmapResolver == null ||
             holder.m_albumArt.getVisibility() == View.GONE)
         {
             holder.m_albumArt.setImageBitmap(null);
         }
         else
         {
-            m_bitmapProvider.makeRequest(holder.m_albumArt, track.CoverArt, 100);
+            m_bitmapResolver.makeRequest(holder.m_albumArt, track.CoverArt, 100);
         }
 
         holder.m_view.setOnClickListener(new SongClickListener(position));

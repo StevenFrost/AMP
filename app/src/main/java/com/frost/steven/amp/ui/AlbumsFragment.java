@@ -1,4 +1,4 @@
-package com.frost.steven.amp;
+package com.frost.steven.amp.ui;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,12 +14,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.frost.steven.amp.R;
+import com.frost.steven.amp.model.Album;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class AlbumsFragment extends Fragment
 {
-    private static final String FRAGMENT_ID = "com.frost.steven.amp.AlbumsFragment";
+    private static final String FRAGMENT_ID = "com.frost.steven.amp.ui.AlbumsFragment";
     public static final  String BUNDLE_PARCEL_ALBUM = "com.frost.steven.amp.BundleParcelAlbum";
 
     private LibraryActivity m_activity;

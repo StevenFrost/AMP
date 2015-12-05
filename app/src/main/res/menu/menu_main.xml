@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
-      tools:context="com.frost.steven.amp.AlbumActivity">
+      tools:context=".ui.AlbumActivity">
     <item android:id="@+id/menu_library_player"
         android:title="@string/menu_player"
         android:icon="@drawable/player_play_minimal"

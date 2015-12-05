@@ -1,4 +1,4 @@
-package com.frost.steven.amp;
+package com.frost.steven.amp.ui;
 
 import android.content.Intent;
 import android.content.res.Resources;
@@ -15,6 +15,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.frost.steven.amp.helpers.BitmapResolver;
+import com.frost.steven.amp.model.DBPlaylist;
+import com.frost.steven.amp.helpers.DBPlaylistManager;
+import com.frost.steven.amp.R;
+import com.frost.steven.amp.model.Playlist;
+import com.frost.steven.amp.service.MediaService;
+
 /**
  * This is the main activity that the user lands on when the launch the
  * application. It holds three tabs; Albums, Playlists and Songs. Each tab
@@ -23,7 +30,7 @@ import android.view.MenuItem;
  */
 public class LibraryActivity extends MediaServiceActivity implements DBPlaylistManager.Container
 {
-    private BitmapProvider       m_bitmapProvider;
+    private BitmapResolver m_bitmapResolver;
     private DBPlaylistManager    m_playlistManager;
     private Playlist.ListCreator m_masterPlaylistTask;
 
@@ -108,9 +115,9 @@ public class LibraryActivity extends MediaServiceActivity implements DBPlaylistM
         return m_playlistManager;
     }
 
-    public BitmapProvider getBitmapProvider()
+    public BitmapResolver getBitmapProvider()
     {
-        return m_bitmapProvider;
+        return m_bitmapResolver;
     }
 
     public Playlist.ListCreator getMasterPlaylistTask()
@@ -132,7 +139,7 @@ public class LibraryActivity extends MediaServiceActivity implements DBPlaylistM
 
         // Bitmap Provider
         StaticFragment sf = StaticFragment.getInstance(getSupportFragmentManager(), getContentResolver(), getResources());
-        m_bitmapProvider = sf.getBitmapProvider();
+        m_bitmapResolver = sf.getBitmapProvider();
     }
 
     /**

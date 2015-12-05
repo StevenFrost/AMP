@@ -1,4 +1,4 @@
-package com.frost.steven.amp;
+package com.frost.steven.amp.ui.listeners;
 
 import android.app.Activity;
 import android.app.DialogFragment;
@@ -8,6 +8,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+
+import com.frost.steven.amp.ui.NewPlaylistFragment;
+import com.frost.steven.amp.R;
+import com.frost.steven.amp.model.AudioTrack;
+import com.frost.steven.amp.model.DBPlaylist;
+import com.frost.steven.amp.helpers.DBPlaylistManager;
+import com.frost.steven.amp.model.Playlist;
 
 import java.util.List;
 

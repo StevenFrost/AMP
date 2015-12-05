@@ -1,4 +1,4 @@
-package com.frost.steven.amp;
+package com.frost.steven.amp.ui;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+
+import com.frost.steven.amp.service.MediaService;
 
 public class MediaServiceActivity extends AppCompatActivity
 {

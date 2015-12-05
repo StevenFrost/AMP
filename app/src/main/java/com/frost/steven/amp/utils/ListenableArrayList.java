@@ -1,4 +1,4 @@
-package com.frost.steven.amp;
+package com.frost.steven.amp.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
