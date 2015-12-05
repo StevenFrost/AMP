@@ -10,7 +10,6 @@ import android.os.Parcelable;
 import android.provider.MediaStore;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;

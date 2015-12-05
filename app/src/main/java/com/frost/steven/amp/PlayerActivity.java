@@ -78,9 +78,9 @@ public class PlayerActivity extends MediaServiceActivity
         mediaService.setOnTrackChangedListener(new MediaService.OnTrackChangedListener()
         {
             @Override
-            public void onTrackChanged(AudioTrack track)
+            public void onTrackChanged(AudioTrack previousTrack, AudioTrack newTrack)
             {
-                refreshVisibleTrackData(track);
+                refreshVisibleTrackData(previousTrack, newTrack);
             }
         });
 
@@ -107,7 +107,7 @@ public class PlayerActivity extends MediaServiceActivity
             }
         });
 
-        refreshVisibleTrackData(mediaService.getCurrentTrack());
+        refreshVisibleTrackData(null, mediaService.getCurrentTrack());
     }
 
     @Override
@@ -121,40 +121,47 @@ public class PlayerActivity extends MediaServiceActivity
      * function is bound to the OnTrackChanged event and is also called upon
      * initial service connection.
      */
-    private void refreshVisibleTrackData(AudioTrack track)
+    private void refreshVisibleTrackData(AudioTrack previousTrack, AudioTrack newTrack)
     {
-        // Album artwork
-        ImageView albumArtView                 = (ImageView)findViewById(R.id.element_song_artwork);
-        ImageView albumArtLargePlaceholderView = (ImageView)findViewById(R.id.player_large_albumart_placeholder);
-        ImageView albumArtLargeView            = (ImageView)findViewById(R.id.player_large_albumart);
-
-        m_bitmapProvider.makeRequest(albumArtView, track.CoverArt, 100);
-
-        if (track.CoverArt != null)
+        if (newTrack == null)
         {
-            m_bitmapProvider.makeRequest(albumArtLargeView, track.CoverArt, 500);
-
-            albumArtLargePlaceholderView.setVisibility(View.GONE);
-            albumArtLargeView.setVisibility(View.VISIBLE);
+            return;
         }
-        else
-        {
-            albumArtLargeView.setImageBitmap(null);
 
-            albumArtLargePlaceholderView.setVisibility(View.VISIBLE);
-            albumArtLargeView.setVisibility(View.GONE);
+        // Album artwork
+        ImageView albumArtLargePlaceholderView = (ImageView) findViewById(R.id.player_large_albumart_placeholder);
+        ImageView albumArtLargeView = (ImageView) findViewById(R.id.player_large_albumart);
+
+        // Adjust the visibility of placeholder views
+        albumArtLargePlaceholderView.setVisibility(newTrack.CoverArt != null ? View.GONE : View.VISIBLE);
+        albumArtLargeView.setVisibility(newTrack.CoverArt != null ? View.VISIBLE : View.GONE);
+
+        // Load the album bitmaps if needed
+        if (previousTrack == null || previousTrack.CoverArt == null || !previousTrack.CoverArt.equals(newTrack.CoverArt))
+        {
+            ImageView albumArtView = (ImageView) findViewById(R.id.element_song_artwork);
+            m_bitmapProvider.makeRequest(albumArtView, newTrack.CoverArt, 100);
+
+            if (newTrack.CoverArt != null)
+            {
+                m_bitmapProvider.makeRequest(albumArtLargeView, newTrack.CoverArt, 500);
+            }
+            else
+            {
+                albumArtLargeView.setImageBitmap(null);
+            }
         }
 
         // Track title, artist and album
-        ((TextView)findViewById(R.id.element_song_title)).setText(track.Title);
-        ((TextView)findViewById(R.id.element_song_artist)).setText(track.Artist);
-        ((TextView)findViewById(R.id.element_song_album)).setText(track.Album);
+        ((TextView)findViewById(R.id.element_song_title)).setText(newTrack.Title);
+        ((TextView)findViewById(R.id.element_song_artist)).setText(newTrack.Artist);
+        ((TextView)findViewById(R.id.element_song_album)).setText(newTrack.Album);
         (findViewById(R.id.element_song_duration)).setVisibility(View.GONE);
         (findViewById(R.id.element_song_menu)).setVisibility(View.GONE);
 
         // Static timecode views
-        ((TextView)findViewById(R.id.player_track_duration)).setText(track.getFormattedDuration());
-        ((SeekBar)findViewById(R.id.player_seek_bar)).setMax(track.Duration);
+        ((TextView)findViewById(R.id.player_track_duration)).setText(newTrack.getFormattedDuration());
+        ((SeekBar)findViewById(R.id.player_seek_bar)).setMax(newTrack.Duration);
 
         // Play/Pause button
         updatePlayButtonImage();

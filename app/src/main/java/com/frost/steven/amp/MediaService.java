@@ -5,22 +5,16 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
@@ -50,6 +44,7 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
     // State
     private PlayerState m_playerState = PlayerState.Stopped;
     private Playlist    m_playlist    = null;
+    private AudioTrack  m_prevTrack   = null;
 
     // Assorted private members
     private final IBinder       m_binder = new MediaBinder();
@@ -272,6 +267,7 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
     public void setPlaylist(Playlist playlist)
     {
         m_playlist = playlist;
+        m_prevTrack = m_playlist.getCurrentTrack();
     }
 
     /**
@@ -318,7 +314,9 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
     {
         if (m_onTrackChanged != null && m_playlist != null)
         {
-            m_onTrackChanged.onTrackChanged(m_playlist.getCurrentTrack());
+            AudioTrack currentTrack = m_playlist.getCurrentTrack();
+            m_onTrackChanged.onTrackChanged(m_prevTrack, currentTrack);
+            m_prevTrack = currentTrack;
         }
     }
 
@@ -418,7 +416,7 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
 
     public interface OnTrackChangedListener
     {
-        void onTrackChanged(AudioTrack track);
+        void onTrackChanged(AudioTrack previousTrack, AudioTrack newTrack);
     }
 
     public interface OnPlayStateChangedListener
