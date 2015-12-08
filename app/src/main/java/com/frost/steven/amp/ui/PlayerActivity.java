@@ -240,7 +240,7 @@ public class PlayerActivity extends MediaServiceActivity
         final MediaService service = getMediaService();
         ImageButton imageButton = (ImageButton)view;
 
-        imageButton.setImageResource(m_shuffle ? R.drawable.player_shuffle : R.drawable.player_shuffle_selected);
+        imageButton.setImageResource(m_shuffle ? R.drawable.ic_player_shuffle : R.drawable.ic_player_shuffle_selected);
         m_shuffle = !m_shuffle;
 
         service.setShuffle(m_shuffle);
@@ -256,7 +256,7 @@ public class PlayerActivity extends MediaServiceActivity
         final MediaService service = getMediaService();
         ImageButton imageButton = (ImageButton)view;
 
-        imageButton.setImageResource(m_repeat ? R.drawable.player_repeat : R.drawable.player_repeat_selected);
+        imageButton.setImageResource(m_repeat ? R.drawable.ic_player_repeat : R.drawable.ic_player_repeat_selected);
         m_repeat = !m_repeat;
 
         service.setRepeat(m_repeat);
@@ -270,11 +270,11 @@ public class PlayerActivity extends MediaServiceActivity
         switch(service.getPlayerState())
         {
         case Playing:
-            imageButton.setImageResource(R.drawable.player_pause);
+            imageButton.setImageResource(R.drawable.ic_player_pause);
             break;
         case Paused:
         case Stopped:
-            imageButton.setImageResource(R.drawable.player_play);
+            imageButton.setImageResource(R.drawable.ic_player_play);
             break;
         }
     }

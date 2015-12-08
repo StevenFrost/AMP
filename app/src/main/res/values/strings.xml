@@ -31,6 +31,9 @@
     <string name="menu_edit">Edit</string>
     <string name="menu_remove">Remove</string>
 
+    <!-- Notification -->
+    <string name="notification_now_playing">Now Playing: {0}</string>
+
     <!-- Accessibility -->
     <string name="cd_prev">Previous</string>
     <string name="cd_play">Play</string>

@@ -18,7 +18,6 @@ import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
-import android.util.TypedValue;
 import android.widget.RemoteViews;
 
 import com.frost.steven.amp.ui.PlayerActivity;
@@ -358,14 +357,18 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(pendingIntent);
 
-        builder.setTicker("Custom Notification");
-        builder.setSmallIcon(R.drawable.notes);
+        AudioTrack track = m_playlist.getCurrentTrack();
+        builder.setTicker(getResources().getString(R.string.notification_now_playing).replace("{0}", track.Title));
+        builder.setSmallIcon(R.drawable.ic_notification);
         builder.setAutoCancel(false);
         builder.setOngoing(m_playerState == PlayerState.Playing);
 
         Notification notification = builder.build();
         notification.priority = Notification.PRIORITY_MAX;
-        notification.visibility = Notification.VISIBILITY_PUBLIC;
+        if (Build.VERSION.SDK_INT >= 21)
+        {
+            notification.visibility = Notification.VISIBILITY_PUBLIC;
+        }
 
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification_player);
         updateRemoteViewElements(contentView);
@@ -393,7 +396,7 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         view.setTextViewText(R.id.notification_player_artist, track.Artist);
         view.setTextViewText(R.id.notification_player_album, track.Album);
 
-        view.setImageViewResource(R.id.notification_player_playpause, m_playerState == PlayerState.Playing ? R.drawable.player_pause_minimal : R.drawable.player_play_minimal);
+        view.setImageViewResource(R.id.notification_player_playpause, m_playerState == PlayerState.Playing ? R.drawable.ic_player_pause_minimal : R.drawable.ic_player_play_minimal);
 
         if (track.CoverArt != null)
         {
@@ -402,9 +405,7 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         }
         else
         {
-            int paddingTop = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics());
-            view.setViewPadding(R.id.notification_player_artwork, 0, paddingTop, 0, 0);
-            view.setImageViewResource(R.id.notification_player_artwork, R.drawable.notes);
+            view.setImageViewResource(R.id.notification_player_artwork, R.drawable.ic_album_placeholder_100);
         }
     }
 

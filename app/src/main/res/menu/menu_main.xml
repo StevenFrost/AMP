@@ -4,7 +4,7 @@
       tools:context=".ui.AlbumActivity">
     <item android:id="@+id/menu_library_player"
         android:title="@string/menu_player"
-        android:icon="@drawable/player_play_minimal"
+        android:icon="@drawable/ic_action_player"
         android:orderInCategory="100"
         app:showAsAction="always"/>
 </menu>
