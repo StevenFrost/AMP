@@ -1,7 +1,5 @@
 package com.frost.steven.amp.ui;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -29,7 +27,7 @@ public class PlayerActivity extends MediaServiceActivity
     private boolean m_repeat = false;
 
     private Handler  m_handler = new Handler();
-    private boolean  m_updateTimecodeView = true;
+    private boolean  m_updateTimecodeView;
     private Runnable m_updateTimecodeViewRunnable = new Runnable()
     {
         @Override
@@ -56,15 +54,6 @@ public class PlayerActivity extends MediaServiceActivity
         // Bitmap Provider
         StaticFragment sf = StaticFragment.getInstance(getSupportFragmentManager(), getContentResolver(), getResources());
         m_bitmapResolver = sf.getBitmapProvider();
-    }
-
-    @Override
-    protected void onStart()
-    {
-        super.onStart();
-
-        Intent playIntent = new Intent(this, MediaService.class);
-        bindService(playIntent, getServiceConnection(), Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -111,6 +100,9 @@ public class PlayerActivity extends MediaServiceActivity
                 updateTrackPositionInterface();
             }
         });
+
+        // Only update the timecode view if we're playing at this point
+        m_updateTimecodeView = mediaService.getPlayerState() == MediaService.PlayerState.Playing;
 
         refreshVisibleTrackData(null, mediaService.getCurrentTrack());
     }

@@ -19,6 +19,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import com.frost.steven.amp.ui.PlayerActivity;
 import com.frost.steven.amp.R;
@@ -35,7 +36,8 @@ import java.io.IOException;
  * This service also displays a permanent notification while in a playing state
  * which can be dismissed while music is paused or stopped.
  */
-public class MediaService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener
+public class MediaService extends Service
+        implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener
 {
     public static final String ACTION_PREVIOUS   = "com.frost.steven.MediaService.ACTION_PREVIOUS";
     public static final String ACTION_PLAY_PAUSE = "com.frost.steven.MediaService.ACTION_PLAY_PAUSE";
@@ -55,6 +57,7 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
     private MediaPlayer         m_player = null;
     private NotificationManager m_notificationManager;
     private BroadcastReceiver   m_broadcastReceiver;
+    private AudioManager        m_audioManager;
 
     public enum PlayerState
     {
@@ -72,6 +75,8 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         m_notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         m_player = new MediaPlayer();
 
+        m_audioManager = (AudioManager)getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+
         m_player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
         m_player.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
@@ -84,6 +89,7 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         intentFilter.addAction(ACTION_PREVIOUS);
         intentFilter.addAction(ACTION_PLAY_PAUSE);
         intentFilter.addAction(ACTION_NEXT);
+        intentFilter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
 
         m_broadcastReceiver = new NotificationBroadcastReceiver();
         registerReceiver(m_broadcastReceiver, intentFilter);
@@ -177,12 +183,53 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
         return true;
     }
 
+    @Override
+    public void onAudioFocusChange(int focusChange)
+    {
+        switch (focusChange)
+        {
+        case AudioManager.AUDIOFOCUS_GAIN:
+            if (m_playerState != PlayerState.Playing)
+            {
+                playAuthorized();
+                m_player.setVolume(1.0f, 1.0f);
+            }
+            break;
+        case AudioManager.AUDIOFOCUS_LOSS:
+        case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+            if (m_playerState == PlayerState.Playing)
+            {
+                pause();
+            }
+            break;
+        case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+            if (m_playerState == PlayerState.Playing)
+            {
+                m_player.setVolume(0.1f, 0.1f);
+            }
+            break;
+        }
+    }
+
     /**
      * Plays the track pointed to by the position field in the playlist. If the
      * player is in the `Paused` state when this function is called the track
      * will be resumed.
      */
     public void play()
+    {
+        int result = m_audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+        if (result == AudioManager.AUDIOFOCUS_REQUEST_FAILED)
+        {
+            Toast.makeText(getApplicationContext(), "Unable to play audio at this time.", Toast.LENGTH_LONG).show();
+        }
+        else
+        {
+            playAuthorized();
+        }
+    }
+
+    private void playAuthorized()
     {
         if (m_playerState == PlayerState.Paused)
         {
@@ -453,6 +500,12 @@ public class MediaService extends Service implements MediaPlayer.OnPreparedListe
                 break;
             case ACTION_NEXT:
                 nextTrack();
+                break;
+            case AudioManager.ACTION_AUDIO_BECOMING_NOISY:
+                if (m_playerState == PlayerState.Playing)
+                {
+                    pause();
+                }
                 break;
             }
         }
