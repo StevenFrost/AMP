@@ -22,9 +22,9 @@ import java.util.Locale;
  */
 public class DBPlaylist implements Parcelable
 {
-    public Long   Id;
-    public String Name;
-    public Long   DateAdded;
+    public Long   Id;           /** Playlist database ID                  */
+    public String Name;         /** Playlist name                         */
+    public Long   DateAdded;    /** Dat on which the playlist was created */
 
     public DBPlaylist(Long id, String name, Long dateAdded)
     {
@@ -54,6 +54,14 @@ public class DBPlaylist implements Parcelable
         dest.writeLong(DateAdded);
     }
 
+    /**
+     * Adds a new track to the playlist table
+     *
+     * @param contentResolver Application content resolver
+     * @param trackIdx        Database index of the track to insert
+     *
+     * @return An async task representing the operation
+     */
     public AddTrackTask addTrack(ContentResolver contentResolver, long trackIdx)
     {
         AddTrackTask task = new AddTrackTask(contentResolver, trackIdx);
@@ -61,6 +69,14 @@ public class DBPlaylist implements Parcelable
         return task;
     }
 
+    /**
+     * Removes an existing track from the playlist table
+     *
+     * @param contentResolver Application content resolver
+     * @param trackIdx        Database index of the track to remove
+     *
+     * @return An async task representing the operation
+     */
     public RemoveTrackTask removeTrack(ContentResolver contentResolver, long trackIdx)
     {
         RemoveTrackTask task = new RemoveTrackTask(contentResolver, trackIdx);
@@ -68,6 +84,11 @@ public class DBPlaylist implements Parcelable
         return task;
     }
 
+    /**
+     * Gets the date the playlist was created as a string in the format dd/MM/yyy.
+     *
+     * @return Formatted string
+     */
     public String getFormattedDateAdded()
     {
         SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy", Locale.UK);
@@ -76,6 +97,9 @@ public class DBPlaylist implements Parcelable
         return s;
     }
 
+    /**
+     * Async task representing a track being inserted into a playlist.
+     */
     public class AddTrackTask extends AsyncTask<Void, Void, Void>
     {
         private ContentResolver m_contentResolver;
@@ -119,6 +143,9 @@ public class DBPlaylist implements Parcelable
         }
     }
 
+    /**
+     * Async task representing a track being removed from a playlist
+     */
     public class RemoveTrackTask extends AsyncTask<Void, Void, Void>
     {
         private ContentResolver m_contentResolver;
@@ -140,6 +167,11 @@ public class DBPlaylist implements Parcelable
         }
     }
 
+    /**
+     * An async task that populates a list with in-memory representations of
+     * playlists currently in the media store. These playlists can then be
+     * added to or removed from.
+     */
     public static class ListCreator extends AsyncTask<Void, DBPlaylist, Void>
     {
         private static final String[] s_projection = {

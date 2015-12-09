@@ -46,11 +46,23 @@ public class Playlist
         m_shuffle = false;
     }
 
+    /**
+     * Adds the given track to the playlist
+     *
+     * @param track the track to add to the playlist
+     */
     public void addTrack(AudioTrack track)
     {
         m_originalTracks.add(track);
     }
 
+    /**
+     * Shuffles the current playlist or restores the original playlist,
+     * depending on the truth of the boolean passed.
+     *
+     * @param shuffle true if the playlist should be shuffled, false if the
+     *                original should be restored.
+     */
     public void setShuffle(boolean shuffle)
     {
         if (!m_shuffle && shuffle)
@@ -99,11 +111,22 @@ public class Playlist
         }
     }
 
+    /**
+     * Sets a boolean determining if the playlist should repeat or not.
+     *
+     * @param repeat true if the playlist should repeat, false otherwise.
+     */
     public void setRepeat(boolean repeat)
     {
         m_repeat = repeat;
     }
 
+    /**
+     * Moves the cursor to the previous track, looping if required. Returns the
+     * new track.
+     *
+     * @return the new track after moving the cursor.
+     */
     public AudioTrack moveToPreviousTrack()
     {
         if (m_cursor == 0 && m_repeat)
@@ -117,11 +140,22 @@ public class Playlist
         return getCurrentTrack();
     }
 
+    /**
+     * Sets the cursor to a specific position in the playlist.
+     *
+     * @param cursor the position to move the cursor to.
+     */
     public void setCursor(int cursor)
     {
         m_cursor = cursor;
     }
 
+    /**
+     * Gets the track at the current position, taking shuffle into account if
+     * it is enabled.
+     *
+     * @return the audio track at the current position.
+     */
     public AudioTrack getCurrentTrack()
     {
         if (m_shuffle)
@@ -131,6 +165,12 @@ public class Playlist
         return m_originalTracks.get(m_cursor);
     }
 
+    /**
+     * Moves the cursor to the next track, looping if required. Returns the new
+     * track.
+     *
+     * @return the new track after moving the cursor.
+     */
     public AudioTrack moveToNextTrack()
     {
         int end = getNumTracks() - 1;
@@ -145,26 +185,53 @@ public class Playlist
         return getCurrentTrack();
     }
 
+    /**
+     * Gets the number of tracks in the playlist.
+     *
+     * @return the number of tracks.
+     */
     public int getNumTracks()
     {
         return (m_shuffle ? m_shuffledTracks.size() : m_originalTracks.size());
     }
 
+    /**
+     * Gets the track at a given position in the unshuffled playlist.
+     *
+     * @param position the position of the track to get.
+     *
+     * @return the audio track at the given position.
+     */
     public AudioTrack getUnshuffledTrack(int position)
     {
         return m_originalTracks.get(position);
     }
 
+    /**
+     * Determines if there is a next track from the current position.
+     *
+     * @return true if there is a track available to play next, false otherwise.
+     */
     public boolean hasNextTrack()
     {
         return m_repeat || m_cursor < (getNumTracks() - 1);
     }
 
+    /**
+     * Determines if there is a previous track from the current position.
+     *
+     * @return true if there is a track available to play, false otherwise.
+     */
     public boolean hasPreviousTrack()
     {
         return m_repeat || m_cursor > 0;
     }
 
+    /**
+     * Removes a track from the playlist at the given position.
+     *
+     * @param position the index of the track to remove.
+     */
     public void removeTrack(int position)
     {
         AudioTrack track = m_originalTracks.get(position);
@@ -184,6 +251,12 @@ public class Playlist
         m_originalTracks.remove(position);
     }
 
+    /**
+     * Attaches a listener that gets notified when an addition, edit or removal
+     * is made to the playlist.
+     *
+     * @param listener the listener to attach.
+     */
     public void attachPlaylistChangedListener(ListenableArrayList.OnCollectionChangedListener listener)
     {
         m_originalTracks.attachListener(listener);

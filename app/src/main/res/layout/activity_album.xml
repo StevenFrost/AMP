@@ -13,7 +13,6 @@
         android:fitsSystemWindows="true"
         android:layout_height="@dimen/app_bar_height"
         android:layout_width="match_parent"
-        app:layout_behavior="com.frost.steven.amp.ui.behaviors.FlingBehavior"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <android.support.design.widget.CollapsingToolbarLayout

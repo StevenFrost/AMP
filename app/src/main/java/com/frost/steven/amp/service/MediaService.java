@@ -43,16 +43,15 @@ public class MediaService extends Service
     public static final String ACTION_PLAY_PAUSE = "com.frost.steven.MediaService.ACTION_PLAY_PAUSE";
     public static final String ACTION_NEXT       = "com.frost.steven.MediaService.ACTION_NEXT";
 
-    // Event listeners
+    private static final int NOTIFICATION_ID = 1337;
+
     private OnTrackChangedListener     m_onTrackChanged     = null;
     private OnPlayStateChangedListener m_onPlayStateChanged = null;
 
-    // State
     private PlayerState m_playerState = PlayerState.Stopped;
-    private Playlist m_playlist    = null;
-    private AudioTrack m_prevTrack   = null;
+    private Playlist    m_playlist    = null;
+    private AudioTrack  m_prevTrack   = null;
 
-    // Assorted private members
     private final IBinder       m_binder = new MediaBinder();
     private MediaPlayer         m_player = null;
     private NotificationManager m_notificationManager;
@@ -84,7 +83,7 @@ public class MediaService extends Service
         m_player.setOnCompletionListener(this);
         m_player.setOnErrorListener(this);
 
-        // Register the broadcast receiver for the notification transport controls
+        // Register the broadcast receiver for the notification transport controls and headphone removal
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION_PREVIOUS);
         intentFilter.addAction(ACTION_PLAY_PAUSE);
@@ -99,7 +98,7 @@ public class MediaService extends Service
     public void onDestroy()
     {
         stop();
-        m_notificationManager.cancel(1337);
+        m_notificationManager.cancel(NOTIFICATION_ID);
 
         m_player.reset();
         m_player.release();
@@ -134,13 +133,6 @@ public class MediaService extends Service
         return START_STICKY;
     }
 
-    /**
-     * Called when the media player is ready to play the current track. This
-     * results in the player state changing to `Playing` and the notification
-     * is updated with the new track information.
-     *
-     * @param player the media player instance
-     */
     @Override
     public void onPrepared(MediaPlayer player)
     {
@@ -148,13 +140,6 @@ public class MediaService extends Service
         setPlayerState(PlayerState.Playing);
     }
 
-    /**
-     * Called when the current track has finished playing. Results in a stopped
-     * player state followed by a play if there is another track available to
-     * play.
-     *
-     * @param player the media player instance
-     */
     @Override
     public void onCompletion(MediaPlayer player)
     {
@@ -168,12 +153,6 @@ public class MediaService extends Service
         }
     }
 
-    /**
-     * Called when an error occurred in the media player. The player state
-     * will be set to `Stopped` and no further items will be played.
-     *
-     * @return true since the error has been handled
-     */
     @Override
     public boolean onError(MediaPlayer player, int what, int extra)
     {
@@ -212,9 +191,11 @@ public class MediaService extends Service
     }
 
     /**
-     * Plays the track pointed to by the position field in the playlist. If the
-     * player is in the `Paused` state when this function is called the track
-     * will be resumed.
+     * Requests audio focus from the audio manager. If successful the track
+     * will begin playing shortly after.
+     *
+     * Unsuccessful requests will result in a toast notifying the user that we
+     * were unable to play audio. No state will be changed as a result of this.
      */
     public void play()
     {
@@ -229,6 +210,11 @@ public class MediaService extends Service
         }
     }
 
+    /**
+     * Plays the track pointed to by the position field in the playlist. If the
+     * player is in the `Paused` state when this function is called the track
+     * will be resumed.
+     */
     private void playAuthorized()
     {
         if (m_playerState == PlayerState.Paused)
@@ -279,6 +265,10 @@ public class MediaService extends Service
         }
     }
 
+    /**
+     * Stops the current track from playing and moves to the previous track in
+     * the playlist. The new track will play shortly after.
+     */
     public void previousTrack()
     {
         stop();
@@ -287,6 +277,10 @@ public class MediaService extends Service
         play();
     }
 
+    /**
+     * Stops the current track from playing and moves to the next track in the
+     * playlist. The new track will play shortly after.
+     */
     public void nextTrack()
     {
         stop();
@@ -305,20 +299,35 @@ public class MediaService extends Service
         m_playlist.setShuffle(shuffle);
     }
 
+    public void setPlaylist(Playlist playlist)
+    {
+        m_playlist = playlist;
+        m_prevTrack = m_playlist.getCurrentTrack();
+    }
+
+    public PlayerState getPlayerState()
+    {
+        return m_playerState;
+    }
+
+    /**
+     * Attaches a listener to listen for track changed events.
+     *
+     * @param listener the listener to attach
+     */
     public void setOnTrackChangedListener(@Nullable OnTrackChangedListener listener)
     {
         m_onTrackChanged = listener;
     }
 
+    /**
+     * Attaches a listener to listen for player state changes.
+     *
+     * @param listener the listener to attach
+     */
     public void setOnPlayStateChangedListener(@Nullable OnPlayStateChangedListener listener)
     {
         m_onPlayStateChanged = listener;
-    }
-
-    public void setPlaylist(Playlist playlist)
-    {
-        m_playlist = playlist;
-        m_prevTrack = m_playlist.getCurrentTrack();
     }
 
     /**
@@ -356,11 +365,9 @@ public class MediaService extends Service
         m_player.seekTo(timecode);
     }
 
-    public PlayerState getPlayerState()
-    {
-        return m_playerState;
-    }
-
+    /**
+     * Notifies any listeners that the track
+     */
     private void notifyTrackChanged()
     {
         if (m_onTrackChanged != null && m_playlist != null)
@@ -389,6 +396,10 @@ public class MediaService extends Service
         updateNotification();
     }
 
+    /**
+     * Updates the service notification with the latest content and player
+     * state. An existing instance of the notification will be replaced.
+     */
     private void updateNotification()
     {
         if (m_playlist == null)
@@ -428,9 +439,16 @@ public class MediaService extends Service
             notification.bigContentView = expandedView;
         }
 
-        m_notificationManager.notify(1337, notification);
+        m_notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
+    /**
+     * Updates remove UI elements in the given remote view. This is for use
+     * with the two types of notification available as they share the same
+     * IDs.
+     *
+     * @param view the remote view to update.
+     */
     private void updateRemoteViewElements(RemoteViews view)
     {
         AudioTrack track = m_playlist.getCurrentTrack();
@@ -477,6 +495,11 @@ public class MediaService extends Service
         void onStateChanged(PlayerState oldState, PlayerState newState);
     }
 
+    /**
+     * Broadcast receiver that handles various custom transport controls and
+     * headphone removal broadcasts. This class directly alters the service
+     * state.
+     */
     private class NotificationBroadcastReceiver extends BroadcastReceiver
     {
         @Override

@@ -16,7 +16,7 @@ public class AudioTrack
     public String Artist;   /** Primary artist                 */
     public String Album;    /** Album name                     */
     public String Data;     /** Track location in storage      */
-    public Uri    CoverArt; /** Cover art graphic              */
+    public Uri    CoverArt; /** Cover art URI                  */
     public int    Duration; /** Track duration in milliseconds */
 
     public AudioTrack(long id, String title, String artist, String album, String data, Uri coverArt, int duration)
@@ -30,11 +30,23 @@ public class AudioTrack
         Duration = duration;
     }
 
+    /**
+     * Gets the audio track duration as a formatted string
+     *
+     * @return Formatted String
+     */
     public String getFormattedDuration()
     {
         return formatDuration(Duration);
     }
 
+    /**
+     * Formats a number of milliseconds into a `mm:ss` string
+     *
+     * @param milliseconds number of milliseconds
+     *
+     * @return Formatted string
+     */
     public static String formatDuration(int milliseconds)
     {
         return String.format("%d:%02d",

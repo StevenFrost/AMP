@@ -15,14 +15,15 @@ import java.util.List;
 
 /**
  * Simple POD type containing the title of an album and a Uri to its artwork
- * if available.
+ * if available. This type is parcelable so we can pass it onto an activity
+ * or fragment that needs to use it.
  */
 public class Album implements Parcelable
 {
-    public Long   AlbumID;
-    public String Title;
-    public String Artist;
-    public Uri    Artwork;
+    public Long   AlbumID;  /** Album database ID    */
+    public String Title;    /** Album title          */
+    public String Artist;   /** Primary album artist */
+    public Uri    Artwork;  /** Album artwork URI    */
 
     /**
      * Constructor
@@ -92,17 +93,22 @@ public class Album implements Parcelable
         private static final String   s_selection  = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         private static final String   s_orderBy    = MediaStore.Audio.Media.ALBUM + " ASC";
         private static final String[] s_projection = {
-            MediaStore.Audio.Media.ALBUM,       /** Album title  */
-            MediaStore.Audio.Media.ARTIST,      /** Album artist */
-            MediaStore.Audio.Media.ALBUM_ID,    /** Cover art ID */
+            MediaStore.Audio.Media.ALBUM,
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.ALBUM_ID,
         };
 
         private ContentResolver         m_contentResolver;
-        private OnAlbumInsertedListener m_onAlbumInsertedListener;
         private OnListCompletedListener m_onListCompletedListener;
 
         private List<Album> m_albums;
 
+        /**
+         * Constructor
+         *
+         * @param contentResolver Application content resolver
+         * @param albums          List of albums to populate
+         */
         public ListCreator(ContentResolver contentResolver, List<Album> albums)
         {
             m_contentResolver = contentResolver;
@@ -162,9 +168,7 @@ public class Album implements Parcelable
                     albumArtworkUri = null;
                 }
 
-                Album album = new Album(albumID, title, artist, albumArtworkUri);
-                m_albums.add(album);
-                publishProgress(album);
+                publishProgress(new Album(albumID, title, artist, albumArtworkUri));
             }
 
             cursor.close();
@@ -174,10 +178,7 @@ public class Album implements Parcelable
         @Override
         protected void onProgressUpdate(Album... progress)
         {
-            if (m_onAlbumInsertedListener != null)
-            {
-                m_onAlbumInsertedListener.onAlbumInserted(progress[0]);
-            }
+            m_albums.add(progress[0]);
         }
 
         @Override
@@ -189,19 +190,9 @@ public class Album implements Parcelable
             }
         }
 
-        public void setOnAlbumInsertedListener(OnAlbumInsertedListener listener)
-        {
-            m_onAlbumInsertedListener = listener;
-        }
-
         public void setOnListCompletedListener(OnListCompletedListener listener)
         {
             m_onListCompletedListener = listener;
-        }
-
-        public interface OnAlbumInsertedListener
-        {
-            void onAlbumInserted(Album album);
         }
 
         public interface OnListCompletedListener

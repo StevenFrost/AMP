@@ -1,6 +1,5 @@
 package com.frost.steven.amp.ui;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.frost.steven.amp.R;
+import com.frost.steven.amp.helpers.BitmapResolver;
 import com.frost.steven.amp.model.Album;
 
 import java.util.ArrayList;
@@ -22,7 +22,6 @@ import java.util.List;
 
 public class AlbumsFragment extends Fragment
 {
-    private static final String FRAGMENT_ID = "com.frost.steven.amp.ui.AlbumsFragment";
     public static final  String BUNDLE_PARCEL_ALBUM = "com.frost.steven.amp.BundleParcelAlbum";
 
     private LibraryActivity m_activity;
@@ -47,13 +46,12 @@ public class AlbumsFragment extends Fragment
         m_activity = (LibraryActivity)getActivity();
 
         m_albums = new ArrayList<>();
-        m_recyclerViewAdapter = new RecyclerViewAdapter(getActivity(), m_albums);
+        m_recyclerViewAdapter = new RecyclerViewAdapter(m_albums);
 
         m_albumListCreatorTask = new Album.ListCreator(
             getActivity().getContentResolver(),
             m_albums
         );
-        m_albumListCreatorTask.setOnAlbumInsertedListener(m_recyclerViewAdapter);
         m_albumListCreatorTask.setOnListCompletedListener(m_recyclerViewAdapter);
         m_albumListCreatorTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
@@ -83,30 +81,15 @@ public class AlbumsFragment extends Fragment
 
     class RecyclerViewAdapter
             extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>
-            implements Album.ListCreator.OnAlbumInsertedListener, Album.ListCreator.OnListCompletedListener
+            implements Album.ListCreator.OnListCompletedListener
     {
-        private Context     m_context;
         private List<Album> m_albums;
-
-        private int m_albumsInserted = 0;
 
         @Override
         public void onListCompleted()
         {
             m_albumListCreatorTask = null;
             notifyDataSetChanged();
-        }
-
-        @Override
-        public void onAlbumInserted(Album album)
-        {
-            ++m_albumsInserted;
-
-            // TODO: Adjust this for the current number of visible elements on screen
-            if (m_albumsInserted % 10 == 0)
-            {
-                notifyDataSetChanged();
-            }
         }
 
         class ViewHolder extends RecyclerView.ViewHolder
@@ -132,9 +115,8 @@ public class AlbumsFragment extends Fragment
             return m_albums.get(position);
         }
 
-        public RecyclerViewAdapter(Context context, List<Album> albums)
+        public RecyclerViewAdapter(List<Album> albums)
         {
-            m_context = context;
             m_albums = albums;
         }
 
@@ -166,7 +148,11 @@ public class AlbumsFragment extends Fragment
                 }
             });
 
-            m_activity.getBitmapProvider().makeRequest(holder.m_artwork, album.Artwork, 100);
+            BitmapResolver resolver = m_activity.getBitmapProvider();
+            if (resolver != null)
+            {
+                resolver.makeRequest(holder.m_artwork, album.Artwork, 100);
+            }
         }
 
         @Override

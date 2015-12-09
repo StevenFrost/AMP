@@ -1,81 +1,89 @@
 package com.frost.steven.amp.ui;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.text.InputFilter;
-import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.frost.steven.amp.R;
 import com.frost.steven.amp.helpers.DBPlaylistManager;
+import com.frost.steven.amp.ui.listeners.PlaylistDetailsPositiveOnClickListener;
 
 public class EditPlaylistFragment extends DialogFragment
 {
-    private int    m_playlistPosition;
-    private String m_playlistName;
-
-    private DBPlaylistManager m_playlistManager;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-
-        Bundle bundle = getArguments();
-        m_playlistPosition = bundle.getInt("playlistPosition");
-        m_playlistName = bundle.getString("playlistName");
-
-        final DBPlaylistManager.Container container = (DBPlaylistManager.Container)getActivity();
-        m_playlistManager = container.getDBPlaylistManager();
-    }
+    private int m_playlistPosition;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
+        Bundle bundle = getArguments();
+        m_playlistPosition = bundle.getInt("playlistPosition");
+        String playlistName = bundle.getString("playlistName");
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
-        View view = inflater.inflate(R.layout.fragment_playlist_details, null);
+        final Resources resources = getResources();
+        final Activity activity = getActivity();
+        final DBPlaylistManager.Container container = (DBPlaylistManager.Container)activity;
+        final DBPlaylistManager m_playlistManager = container.getDBPlaylistManager();
+
+        final View view = inflater.inflate(R.layout.fragment_playlist_details, null);
         final TextView textView = (TextView)(view.findViewById(R.id.playlist_details_name));
+        textView.setText(playlistName);
 
-        textView.setText(m_playlistName);
-        textView.setFilters(new InputFilter[] {
-            new InputFilter()
-            {
-                @Override
-                public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend)
-                {
-                    if (source.equals("") || source.toString().matches("[a-zA-Z 0-9 _-]+"))
-                    {
-                        return source;
-                    }
-                    return "";
-                }
-            }
-        });
-
-        builder.setTitle("Edit Playlist");
+        builder.setTitle(resources.getString(R.string.playlist_edit));
         builder.setView(view);
-        builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener()
+        builder.setPositiveButton(resources.getString(R.string.playlist_details_create), new PositiveDialogClickListener());
+        builder.setNegativeButton(resources.getString(R.string.playlist_details_cancel), new NegativeDialogClickListener());
+
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+        Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        positiveButton.setOnClickListener(new PositiveClickListener(activity, view, dialog, m_playlistManager));
+
+        return dialog;
+    }
+
+    private class PositiveDialogClickListener implements DialogInterface.OnClickListener
+    {
+        @Override
+        public void onClick(DialogInterface dialog, int id)
         {
-            @Override public void onClick(DialogInterface dialog, int id)
-            {
-                final String playlistName = textView.getText().toString();
-                m_playlistManager.edit(m_playlistPosition, playlistName);
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+            // Intentionally left (almost) blank.
+        }
+    }
+
+    private class NegativeDialogClickListener implements DialogInterface.OnClickListener
+    {
+        @Override
+        public void onClick(DialogInterface dialogInterface, int id)
         {
-            public void onClick(DialogInterface dialog, int id)
-            {
-                EditPlaylistFragment.this.getDialog().cancel();
-            }
-        });
-        return builder.create();
+            Dialog dialog = EditPlaylistFragment.this.getDialog();
+            dialog.cancel();
+        }
+    }
+
+    private class PositiveClickListener extends PlaylistDetailsPositiveOnClickListener
+    {
+        public PositiveClickListener(Context context, View view, Dialog dialog, DBPlaylistManager playlistManager)
+        {
+            super(context, view, getResources(), dialog, playlistManager, m_playlistPosition);
+        }
+
+        @Override
+        protected void onSuccessfulValidation(long playlistPosition, String playlistName, DBPlaylistManager playlistManager)
+        {
+            playlistManager.edit((int)playlistPosition, playlistName);
+        }
     }
 }

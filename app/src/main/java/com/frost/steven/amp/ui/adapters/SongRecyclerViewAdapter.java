@@ -19,12 +19,17 @@ import com.frost.steven.amp.service.MediaService;
 import com.frost.steven.amp.ui.MediaServiceActivity;
 import com.frost.steven.amp.ui.PlayerActivity;
 
+/**
+ * Recycler view adapter for lists of audio tracks. Handles the presentation of
+ * a playlist with some customisation options such as being able to disable
+ * album art.
+ */
 public class SongRecyclerViewAdapter
     extends RecyclerView.Adapter<SongRecyclerViewAdapter.ViewHolder>
-    implements Playlist.ListCreator.ProgressListener, Playlist.ListCreator.CompletionListener
+    implements Playlist.ListCreator.CompletionListener
 {
-    private MediaServiceActivity m_activity;
-    private BitmapResolver m_bitmapResolver;
+    private MediaServiceActivity        m_activity;
+    private BitmapResolver              m_bitmapResolver;
     private MenuOnClickListener.Factory m_menuFactory;
 
     private Playlist             m_playlist;
@@ -50,7 +55,6 @@ public class SongRecyclerViewAdapter
 
         m_playlistCreatorTask = playlistCreatorTask;
         m_playlist = m_playlistCreatorTask.getPlaylist();
-        m_playlistCreatorTask.addProgressListener(this);
         m_playlistCreatorTask.addCompletionListener(this);
     }
 
@@ -103,12 +107,6 @@ public class SongRecyclerViewAdapter
     }
 
     @Override
-    public void onPlaylistProgress(AudioTrack track)
-    {
-        // TODO: Work out if we should use notifyDataSetChanged() here
-    }
-
-    @Override
     public void onPlaylistCompleted()
     {
         m_playlistCreatorTask = null;
@@ -116,7 +114,8 @@ public class SongRecyclerViewAdapter
     }
 
     /**
-     * POD structure holding view objects contained in a single song row.
+     * POD structure holding view objects contained in a single audio
+     * track row.
      */
     protected class ViewHolder extends RecyclerView.ViewHolder
     {
@@ -142,6 +141,10 @@ public class SongRecyclerViewAdapter
         }
     }
 
+    /**
+     * On click listener implementation for a single audio track list item. The
+     * position of the element is bound in an instance of this class.
+     */
     private class SongClickListener implements View.OnClickListener
     {
         private final int m_position;
