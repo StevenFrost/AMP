@@ -57,7 +57,8 @@ public abstract class PlaylistDetailsPositiveOnClickListener implements View.OnC
         // Character usage validation
         if (!playlistName.matches("[a-zA-Z0-9 _-]+"))
         {
-            Toast.makeText(m_context, "Playlist name must be alphanumeric, spaces, underscores and dashes only.", Toast.LENGTH_LONG).show();
+            String message = m_resources.getString(R.string.playlist_validation_characters);
+            Toast.makeText(m_context, message, Toast.LENGTH_LONG).show();
             return;
         }
 

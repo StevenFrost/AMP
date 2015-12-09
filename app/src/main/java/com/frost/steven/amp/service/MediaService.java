@@ -299,8 +299,25 @@ public class MediaService extends Service
         m_playlist.setShuffle(shuffle);
     }
 
+    public boolean isRepeatEnabled()
+    {
+        return m_playlist.isRepeatEnabled();
+    }
+
+    public boolean isShuffleEnabled()
+    {
+        return m_playlist.isShuffleEnabled();
+    }
+
     public void setPlaylist(Playlist playlist)
     {
+        // Preserve the repeat and shuffle settings if we have an existing playlist
+        if (m_playlist != null)
+        {
+            playlist.setRepeat(m_playlist.isRepeatEnabled());
+            playlist.setShuffle(m_playlist.isShuffleEnabled());
+        }
+
         m_playlist = playlist;
         m_prevTrack = m_playlist.getCurrentTrack();
     }

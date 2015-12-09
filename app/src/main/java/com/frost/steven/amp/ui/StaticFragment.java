@@ -18,9 +18,6 @@ public class StaticFragment extends Fragment
 {
     private static final String FRAGMENT_ID = "com.frost.steven.amp.ui.StaticFragment";
 
-    private ContentResolver m_contentResolver;
-    private Resources       m_resources;
-
     private BitmapResolver m_bitmapResolver;
 
     public static StaticFragment getInstance(FragmentManager fragmentManager, ContentResolver contentResolver, Resources resources)
@@ -29,14 +26,17 @@ public class StaticFragment extends Fragment
         if (fragment == null)
         {
             fragment = new StaticFragment();
-            fragment.setContentResolver(contentResolver);
-            fragment.setResources(resources);
-            fragment.initialise();
+            fragment.initialise(contentResolver, resources);
 
             FragmentTransaction transaction = fragmentManager.beginTransaction();
             transaction.add(fragment, FRAGMENT_ID);
             transaction.commit();
         }
+        else if (fragment.m_bitmapResolver == null)
+        {
+            fragment.initialise(contentResolver, resources);
+        }
+
         return fragment;
     }
 
@@ -47,23 +47,13 @@ public class StaticFragment extends Fragment
         setRetainInstance(true);
     }
 
-    private void initialise()
+    private void initialise(ContentResolver contentResolver, Resources resources)
     {
-        m_bitmapResolver = new BitmapResolver(m_resources, m_contentResolver);
+        m_bitmapResolver = new BitmapResolver(resources, contentResolver);
     }
 
     public BitmapResolver getBitmapProvider()
     {
         return m_bitmapResolver;
-    }
-
-    private void setContentResolver(ContentResolver contentResolver)
-    {
-        m_contentResolver = contentResolver;
-    }
-
-    private void setResources(Resources resources)
-    {
-        m_resources = resources;
     }
 }

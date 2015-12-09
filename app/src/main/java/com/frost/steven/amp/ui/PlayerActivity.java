@@ -104,6 +104,10 @@ public class PlayerActivity extends MediaServiceActivity
         // Only update the timecode view if we're playing at this point
         m_updateTimecodeView = mediaService.getPlayerState() == MediaService.PlayerState.Playing;
 
+        // Get the current shuffle & repeat states
+        m_repeat = mediaService.isRepeatEnabled();
+        m_shuffle = mediaService.isShuffleEnabled();
+
         refreshVisibleTrackData(null, mediaService.getCurrentTrack());
     }
 
@@ -160,8 +164,10 @@ public class PlayerActivity extends MediaServiceActivity
         ((TextView)findViewById(R.id.player_track_duration)).setText(newTrack.getFormattedDuration());
         ((SeekBar)findViewById(R.id.player_seek_bar)).setMax(newTrack.Duration);
 
-        // Play/Pause button
+        // Transport control button states
         updatePlayButtonImage();
+        updateRepeatButtonImage();
+        updateShuffleButtonImage();
 
         m_handler.post(m_updateTimecodeViewRunnable);
     }
@@ -230,10 +236,9 @@ public class PlayerActivity extends MediaServiceActivity
     public void onShuffleButtonClick(View view)
     {
         final MediaService service = getMediaService();
-        ImageButton imageButton = (ImageButton)view;
 
-        imageButton.setImageResource(m_shuffle ? R.drawable.ic_player_shuffle : R.drawable.ic_player_shuffle_selected);
         m_shuffle = !m_shuffle;
+        updateShuffleButtonImage();
 
         service.setShuffle(m_shuffle);
     }
@@ -246,10 +251,9 @@ public class PlayerActivity extends MediaServiceActivity
     public void onRepeatButtonClick(View view)
     {
         final MediaService service = getMediaService();
-        ImageButton imageButton = (ImageButton)view;
 
-        imageButton.setImageResource(m_repeat ? R.drawable.ic_player_repeat : R.drawable.ic_player_repeat_selected);
         m_repeat = !m_repeat;
+        updateRepeatButtonImage();
 
         service.setRepeat(m_repeat);
     }
@@ -269,6 +273,18 @@ public class PlayerActivity extends MediaServiceActivity
             imageButton.setImageResource(R.drawable.ic_player_play);
             break;
         }
+    }
+
+    private void updateRepeatButtonImage()
+    {
+        ImageButton imageButton = (ImageButton)findViewById(R.id.player_repeat_button);
+        imageButton.setImageResource(m_repeat ? R.drawable.ic_player_repeat_selected : R.drawable.ic_player_repeat);
+    }
+
+    private void updateShuffleButtonImage()
+    {
+        ImageButton imageButton = (ImageButton)findViewById(R.id.player_shuffle_button);
+        imageButton.setImageResource(m_shuffle ? R.drawable.ic_player_shuffle_selected : R.drawable.ic_player_shuffle);
     }
 
     private void updateTrackPositionInterface()

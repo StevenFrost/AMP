@@ -34,10 +34,8 @@ public class SongsFragment extends Fragment
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState)
+    public void onResume()
     {
-        super.onActivityCreated(savedInstanceState);
-
         LibraryActivity activity = (LibraryActivity)getActivity();
 
         BitmapResolver bitmapResolver = activity.getBitmapProvider();
@@ -45,11 +43,13 @@ public class SongsFragment extends Fragment
 
         // Attach the song recycler view adapter
         SongRecyclerViewAdapter songRecyclerViewAdapter = new SongRecyclerViewAdapter(
-            activity.getMasterPlaylistTask(),
-            activity,
-            new MenuOnClickListener.SongListener.Factory(playlistManager), bitmapResolver
+                activity.getMasterPlaylistTask(),
+                activity,
+                new MenuOnClickListener.SongListener.Factory(playlistManager), bitmapResolver
         );
         m_recyclerView.setAdapter(songRecyclerViewAdapter);
+
+        super.onResume();
     }
 
     public static SongsFragment getInstance()

@@ -167,8 +167,8 @@ public class SongRecyclerViewAdapter
             AudioTrack currentTrack = mediaService.getCurrentTrack();
 
             // Update the playlist bound to the service
-            mediaService.setPlaylist(m_playlist);
             m_playlist.setCursor(m_position);
+            mediaService.setPlaylist(m_playlist);
 
             // Play the selected track if it isn't the track that is already playing
             if (currentTrack != m_playlist.getUnshuffledTrack(m_position))

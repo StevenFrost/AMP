@@ -31,6 +31,7 @@
     <string name="playlist_details_cancel">Cancel</string>
     <string name="playlist_validation_empty">A playlist name cannot be empty.</string>
     <string name="playlist_validation_exists">A playlist with this name already exists.</string>
+    <string name="playlist_validation_characters">Playlist name must be alphanumeric, spaces, underscores and dashes only.</string>
 
     <!-- Notification -->
     <string name="notification_now_playing">Now Playing: {0}</string>

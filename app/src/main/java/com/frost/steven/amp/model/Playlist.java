@@ -65,7 +65,7 @@ public class Playlist
      */
     public void setShuffle(boolean shuffle)
     {
-        if (!m_shuffle && shuffle)
+        if (shuffle)
         {
             m_shuffle = true;
 
@@ -91,9 +91,13 @@ public class Playlist
 
             m_cursor = 0;
         }
-        else if (m_shuffle && !shuffle)
+        else
         {
             m_shuffle = false;
+            if (m_shuffledTracks.isEmpty())
+            {
+                return;
+            }
 
             // Find the position of the current song in the original list
             int cursor = m_cursor;
@@ -225,6 +229,16 @@ public class Playlist
     public boolean hasPreviousTrack()
     {
         return m_repeat || m_cursor > 0;
+    }
+
+    public boolean isRepeatEnabled()
+    {
+        return m_repeat;
+    }
+
+    public boolean isShuffleEnabled()
+    {
+        return m_shuffle;
     }
 
     /**
